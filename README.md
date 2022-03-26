@@ -18,6 +18,12 @@
    - `attributeChangedCallback()` to re-render and reset event listeners
 
 3. Refactor reactive boilerplate
+
    - `ReactiveElement` handles adding/removing event listeners and calling `render()`
    - Static `styles` is used by render call
    - Static `properties` is used by `ReactiveElement` to generate observed attributes and getters/setters
+
+4. Separate properties from state
+   - `<app-form>` manages form state
+   - Static `properties` and `state`
+   - Updating DOM and event listeners

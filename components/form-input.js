@@ -22,7 +22,10 @@ export class FormInput extends ReactiveElement {
   ];
 
   handleInput(event) {
-    this.value = event.target.value;
+    event.stopPropagation();
+    this.dispatchEvent(
+      new CustomEvent('input', { detail: event.target.value })
+    );
   }
 
   render() {
