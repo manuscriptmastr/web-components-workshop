@@ -8,3 +8,11 @@
    - `class extends HTMLElement {}`
    - One-time setup with `constructor()` and `innerHTML`
    - Note: we cannot inspect DOM nodes inside `<form-input>`
+
+2. Making `<form-input>` reactive
+
+   - Moving `innerHTML` call to lifecycles `connectedCallback()` and `disconnectedCallback()`
+   - Adding event listener to `<input>` (`oninput` vs. `addEventListener('input')`)
+   - Syncing attributes and properties with getters and setters (props, computed props)
+   - `observedAttributes`
+   - `attributeChangedCallback()` to re-render and reset event listeners

@@ -1,9 +1,41 @@
 export class FormInput extends HTMLElement {
-  constructor() {
-    super();
-    const label = this.getAttribute('label');
-    const value = this.getAttribute('value');
-    const id = label.toLowerCase();
+  static observedAttributes = ['label', 'value'];
+
+  get label() {
+    return this.getAttribute('label');
+  }
+
+  get value() {
+    return this.getAttribute('value');
+  }
+
+  set value(val) {
+    this.setAttribute('value', val);
+  }
+
+  get id() {
+    return this.label.toLowerCase();
+  }
+
+  handleInput(event) {
+    this.value = event.target.value;
+  }
+
+  _attachListeners() {
+    this.querySelector('input')?.addEventListener(
+      'input',
+      this.handleInput.bind(this)
+    );
+  }
+
+  _removeListeners() {
+    this.querySelector('input')?.removeEventListener(
+      'input',
+      this.handleInput.bind(this)
+    );
+  }
+
+  _render() {
     this.innerHTML = `
       <style>
         label {
@@ -14,9 +46,26 @@ export class FormInput extends HTMLElement {
           color: green;
         }
       </style>
-      <label for="${id}">${label}</label>
-      <input value="${value}" id="${id}" />
+      <label for="${this.id}">${this.label}</label>
+      <input value="${this.value}" id="${this.id}" />
     `;
+  }
+
+  connectedCallback() {
+    this._render();
+    this._attachListeners();
+  }
+
+  attributeChangedCallback(key, prev, curr) {
+    if (prev !== curr) {
+      this._removeListeners();
+      this._render();
+      this._attachListeners();
+    }
+  }
+
+  disconnectedCallback() {
+    this._removeListeners();
   }
 }
 
