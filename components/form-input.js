@@ -1,71 +1,32 @@
-export class FormInput extends HTMLElement {
-  static observedAttributes = ['label', 'value'];
+import { ReactiveElement } from '../utils/reactive-element.js';
 
-  get label() {
-    return this.getAttribute('label');
-  }
+export class FormInput extends ReactiveElement {
+  static properties = ['label', 'value'];
 
-  get value() {
-    return this.getAttribute('value');
-  }
+  static styles = `
+    label {
+      color: blue;
+    }
 
-  set value(val) {
-    this.setAttribute('value', val);
-  }
+    input {
+      color: green;
+    }
+  `;
 
   get id() {
     return this.label.toLowerCase();
   }
 
+  listeners = [
+    { selector: 'input', event: 'input', handler: this.handleInput.bind(this) },
+  ];
+
   handleInput(event) {
     this.value = event.target.value;
   }
 
-  _attachListeners() {
-    this.querySelector('input')?.addEventListener(
-      'input',
-      this.handleInput.bind(this)
-    );
-  }
-
-  _removeListeners() {
-    this.querySelector('input')?.removeEventListener(
-      'input',
-      this.handleInput.bind(this)
-    );
-  }
-
-  _render() {
-    this.innerHTML = `
-      <style>
-        label {
-          color: blue;
-        }
-
-        input {
-          color: green;
-        }
-      </style>
-      <label for="${this.id}">${this.label}</label>
-      <input value="${this.value}" id="${this.id}" />
-    `;
-  }
-
-  connectedCallback() {
-    this._render();
-    this._attachListeners();
-  }
-
-  attributeChangedCallback(key, prev, curr) {
-    if (prev !== curr) {
-      this._removeListeners();
-      this._render();
-      this._attachListeners();
-    }
-  }
-
-  disconnectedCallback() {
-    this._removeListeners();
+  render() {
+    return `<label for="${this.id}">${this.label}</label><input value="${this.value}" id="${this.id}" />`;
   }
 }
 

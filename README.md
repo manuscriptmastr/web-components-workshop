@@ -16,3 +16,8 @@
    - Syncing attributes and properties with getters and setters (props, computed props)
    - `observedAttributes`
    - `attributeChangedCallback()` to re-render and reset event listeners
+
+3. Refactor reactive boilerplate
+   - `ReactiveElement` handles adding/removing event listeners and calling `render()`
+   - Static `styles` is used by render call
+   - Static `properties` is used by `ReactiveElement` to generate observed attributes and getters/setters
