@@ -24,6 +24,12 @@
    - Static `properties` is used by `ReactiveElement` to generate observed attributes and getters/setters
 
 4. Separate properties from state
+
    - `<app-form>` manages form state
    - Static `properties` and `state`
    - Updating DOM and event listeners
+
+5. Encapsulate component with ShadowDOM
+   - Inherit CSS variables from `global.css`
+   - Add `vendor.css` with unexpected `input` color
+   - `this.attachShadow({ mode: 'open' })` and `this.shadowRoot`

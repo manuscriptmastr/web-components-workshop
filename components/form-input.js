@@ -5,11 +5,11 @@ export class FormInput extends ReactiveElement {
 
   static styles = `
     label {
-      color: blue;
+      color: var(--color-primary);
     }
 
     input {
-      color: green;
+      color: var(--color-secondary);
     }
   `;
 

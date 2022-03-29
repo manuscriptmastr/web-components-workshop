@@ -9,6 +9,8 @@ export class ReactiveElement extends HTMLElement {
 
   constructor() {
     super();
+    // Encapsulate component
+    this.attachShadow({ mode: 'open' });
     // Properties
     this.constructor.observedAttributes.forEach((attribute) => {
       Object.defineProperty(this, attribute, {
@@ -43,20 +45,22 @@ export class ReactiveElement extends HTMLElement {
   }
 
   _render() {
-    this.innerHTML = `<style>${
+    this.shadowRoot.innerHTML = `<style>${
       this.constructor.styles
     }</style>${this.render()}`;
   }
 
   _attachListeners() {
     this.listeners.forEach(({ selector, event, handler }) =>
-      this.querySelector(selector)?.addEventListener(event, handler)
+      this.shadowRoot.querySelector(selector)?.addEventListener(event, handler)
     );
   }
 
   _removeListeners() {
     this.listeners.forEach(({ selector, event, handler }) =>
-      this.querySelector(selector)?.removeEventListener(event, handler)
+      this.shadowRoot
+        .querySelector(selector)
+        ?.removeEventListener(event, handler)
     );
   }
 
