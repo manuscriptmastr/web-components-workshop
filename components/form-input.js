@@ -1,36 +1,28 @@
-import { ReactiveElement } from '../utils/reactive-element.js';
+import { reactiveElement } from '../utils/reactive-element.js';
 
-export class FormInput extends ReactiveElement {
-  static properties = ['label', 'value'];
+const handleInput = (event, host) => {
+  event.stopPropagation();
+  host.dispatchEvent(new CustomEvent('input', { detail: event.target.value }));
+};
 
-  static styles = `
-    label {
-      color: var(--color-primary);
-    }
+export const FormInput = reactiveElement(
+  'form-input',
+  ['label', 'value'],
+  ({ label, value, useEventListener }) => {
+    useEventListener('input', 'input', handleInput);
+    const id = label.toLowerCase();
+    return `
+      <style>
+        label {
+          color: var(--color-primary);
+        }
 
-    input {
-      color: var(--color-secondary);
-    }
-  `;
-
-  get id() {
-    return this.label.toLowerCase();
+        input {
+          color: var(--color-secondary);
+        }
+      </style>
+      <label for="${id}">${label}</label>
+      <input value="${value}" id="${id}" />
+	`;
   }
-
-  listeners = [
-    { selector: 'input', event: 'input', handler: this.handleInput.bind(this) },
-  ];
-
-  handleInput(event) {
-    event.stopPropagation();
-    this.dispatchEvent(
-      new CustomEvent('input', { detail: event.target.value })
-    );
-  }
-
-  render() {
-    return `<label for="${this.id}">${this.label}</label><input value="${this.value}" id="${this.id}" />`;
-  }
-}
-
-customElements.define('form-input', FormInput);
+);

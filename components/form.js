@@ -1,25 +1,11 @@
-import { ReactiveElement } from '../utils/reactive-element.js';
+import { reactiveElement } from '../utils/reactive-element.js';
 
-class Form extends ReactiveElement {
-  static state = {
-    origin: 'Worka, Ethiopia',
-  };
-
-  listeners = [
-    {
-      selector: 'form-input',
-      event: 'input',
-      handler: this.handleInput.bind(this),
-    },
-  ];
-
-  handleInput(event) {
-    this.state.origin = event.detail;
+export const Form = reactiveElement(
+  'app-form',
+  [],
+  ({ useEventListener, useState }) => {
+    const [origin, setOrigin] = useState('Worka, Ethiopia');
+    useEventListener('form-input', 'input', (event) => setOrigin(event.detail));
+    return `<form><form-input label="Origin" value="${origin}"></form-input></form>`;
   }
-
-  render() {
-    return `<form><form-input label="Origin" value="${this.state.origin}"></form-input></form>`;
-  }
-}
-
-customElements.define('app-form', Form);
+);

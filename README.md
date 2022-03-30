@@ -30,6 +30,14 @@
    - Updating DOM and event listeners
 
 5. Encapsulate component with ShadowDOM
+
    - Inherit CSS variables from `global.css`
    - Add `vendor.css` with unexpected `input` color
    - `this.attachShadow({ mode: 'open' })` and `this.shadowRoot`
+
+6. Create a functional `reactiveElement()`
+   - Override `_render()`, `_attachListeners()`, and `_removeListeners()`
+   - Add `useEventListener()`
+   - Notice generic `removing -> rendering -> adding` pattern. How can we leverage this in the future for other effects?
+   - Make `<form-input>` functional
+   - Add `useState()`

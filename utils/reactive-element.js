@@ -1,3 +1,5 @@
+import { pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+
 export class ReactiveElement extends HTMLElement {
   static styles = '';
 
@@ -81,3 +83,79 @@ export class ReactiveElement extends HTMLElement {
     this._removeListeners();
   }
 }
+
+export const reactiveElement = (tag, props, renderFn) => {
+  const Element = class extends ReactiveElement {
+    static properties = props;
+
+    _subscribeListeners = [];
+
+    _unsubscribeListeners = [];
+
+    _state = {};
+
+    useState(initialValue, key) {
+      const self = this;
+
+      if (!self.state.hasOwnProperty(key)) {
+        self._state[key] = initialValue;
+        Object.defineProperty(self.state, key, {
+          get() {
+            return self._state[key];
+          },
+          set(value) {
+            self._state[key] = value;
+            self._removeListeners();
+            self._render();
+            self._attachListeners();
+          },
+        });
+      }
+
+      return [
+        self.state[key],
+        (value) => {
+          self.state[key] = value;
+        },
+      ];
+    }
+
+    useEventListener(selector, event, handler) {
+      const subscribe = () =>
+        this.shadowRoot
+          .querySelector(selector)
+          ?.addEventListener(event, (e) => handler(e, this));
+      this._subscribeListeners.push(subscribe.bind(this));
+
+      const unsubscribe = () =>
+        this.shadowRoot
+          .querySelector(selector)
+          ?.removeEventListener(event, (e) => handler(e, this));
+      this._unsubscribeListeners.push(unsubscribe.bind(this));
+    }
+
+    _attachListeners() {
+      this._subscribeListeners.forEach((subscribe) => subscribe());
+      this._subscribeListeners = [];
+    }
+
+    _removeListeners() {
+      this._unsubscribeListeners.forEach((unsubscribe) => unsubscribe());
+      this._unsubscribeListeners = [];
+    }
+
+    _render() {
+      let count = 0;
+      this.shadowRoot.innerHTML = renderFn({
+        ...pick(props, this),
+        useEventListener: this.useEventListener.bind(this),
+        useState: (initialValue) => {
+          count++;
+          return this.useState(initialValue, count);
+        },
+      });
+    }
+  };
+
+  customElements.define(tag, Element);
+};
