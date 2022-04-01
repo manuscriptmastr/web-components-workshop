@@ -8,7 +8,13 @@ const handleInput = (event, host) => {
 export const FormInput = reactiveElement(
   'form-input',
   ['label', 'value'],
-  ({ label, value, useEventListener }) => {
+  ({ label, value, useEffect, useEventListener }) => {
+    useEffect(() => {
+      console.log('Rendering Form Input');
+      return () => {
+        console.log('Cleaning up Form Input');
+      };
+    });
     useEventListener('input', 'input', handleInput);
     const id = label.toLowerCase();
     return `

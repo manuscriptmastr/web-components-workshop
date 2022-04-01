@@ -1,158 +1,148 @@
-import { pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+import { equals, pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 
-export class ReactiveElement extends HTMLElement {
-  static styles = '';
+const Counter = () => {
+  let count = -1;
+  return () => {
+    count++;
+    return count;
+  };
+};
 
-  static get observedAttributes() {
-    return this.properties || [];
+class EffectsQueue {
+  queue = new Map();
+
+  get(key) {
+    return this.queue.get(key);
   }
 
-  static state = {};
-
-  constructor() {
-    super();
-    // Encapsulate component
-    this.attachShadow({ mode: 'open' });
-    // Properties
-    this.constructor.observedAttributes.forEach((attribute) => {
-      Object.defineProperty(this, attribute, {
-        get() {
-          return this.getAttribute(attribute);
-        },
-      });
-    });
-    // Data
-    const STATE = { ...this.constructor.state };
-    this.state = {};
-    const self = this;
-    Object.keys(self.constructor.state).forEach((key) => {
-      Object.defineProperty(self.state, key, {
-        get() {
-          return STATE[key];
-        },
-        set(value) {
-          STATE[key] = value;
-          self._removeListeners();
-          self._render();
-          self._attachListeners();
-        },
-      });
-    });
+  set(key, effect, deps) {
+    const { deps: prevDeps, cleanup } = this.queue.get(key) || {};
+    this.queue.set(key, { effect, deps, prevDeps, cleanup });
   }
 
-  listeners = [];
-
-  render() {
-    return '';
+  shouldFire(key) {
+    const { deps, prevDeps } = this.queue.get(key);
+    return Array.isArray(deps) && equals(deps, prevDeps) ? false : true;
   }
 
-  _render() {
-    this.shadowRoot.innerHTML = `<style>${
-      this.constructor.styles
-    }</style>${this.render()}`;
-  }
-
-  _attachListeners() {
-    this.listeners.forEach(({ selector, event, handler }) =>
-      this.shadowRoot.querySelector(selector)?.addEventListener(event, handler)
-    );
-  }
-
-  _removeListeners() {
-    this.listeners.forEach(({ selector, event, handler }) =>
-      this.shadowRoot
-        .querySelector(selector)
-        ?.removeEventListener(event, handler)
-    );
-  }
-
-  connectedCallback() {
-    this._render();
-    this._attachListeners();
-  }
-
-  attributeChangedCallback(key, prev, curr) {
-    if (prev !== curr) {
-      this._removeListeners();
-      this._render();
-      this._attachListeners();
+  fire(key) {
+    const { effect, ...rest } = this.queue.get(key);
+    if (this.shouldFire(key)) {
+      const cleanup = effect();
+      this.queue.set(key, { effect, ...rest, cleanup });
     }
   }
 
-  disconnectedCallback() {
-    this._removeListeners();
+  cleanup(key, hard = false) {
+    const { cleanup } = this.queue.get(key);
+    const _cleanup = typeof cleanup === 'function' ? cleanup : () => {};
+    if (hard || this.shouldFire(key)) {
+      _cleanup();
+    }
+  }
+
+  start() {
+    for (const [key] of this.queue) {
+      this.cleanup(key);
+    }
+    for (const [key] of this.queue) {
+      this.fire(key);
+    }
+  }
+
+  stop() {
+    for (const [key] of this.queue) {
+      this.cleanup(key, true);
+    }
   }
 }
 
 export const reactiveElement = (tag, props, renderFn) => {
-  const Element = class extends ReactiveElement {
-    static properties = props;
+  const Element = class extends HTMLElement {
+    static observedAttributes = props;
 
-    _subscribeListeners = [];
+    state = {};
 
-    _unsubscribeListeners = [];
+    effectsQueue = new EffectsQueue();
 
-    _state = {};
-
-    useState(initialValue, key) {
-      const self = this;
-
-      if (!self.state.hasOwnProperty(key)) {
-        self._state[key] = initialValue;
-        Object.defineProperty(self.state, key, {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this.constructor.observedAttributes.forEach((attribute) => {
+        Object.defineProperty(this, attribute, {
           get() {
-            return self._state[key];
-          },
-          set(value) {
-            self._state[key] = value;
-            self._removeListeners();
-            self._render();
-            self._attachListeners();
+            return this.getAttribute(attribute);
           },
         });
+      });
+    }
+
+    queueEffect(key, effect, dependencies) {
+      this.effectsQueue.set(key, effect, dependencies);
+    }
+
+    connectedCallback() {
+      this.render();
+      this.effectsQueue.start();
+    }
+
+    attributeChangedCallback(key, prev, curr) {
+      if (prev !== curr) {
+        this.render();
+        this.effectsQueue.start();
       }
-
-      return [
-        self.state[key],
-        (value) => {
-          self.state[key] = value;
-        },
-      ];
     }
 
-    useEventListener(selector, event, handler) {
-      const subscribe = () =>
-        this.shadowRoot
-          .querySelector(selector)
-          ?.addEventListener(event, (e) => handler(e, this));
-      this._subscribeListeners.push(subscribe.bind(this));
-
-      const unsubscribe = () =>
-        this.shadowRoot
-          .querySelector(selector)
-          ?.removeEventListener(event, (e) => handler(e, this));
-      this._unsubscribeListeners.push(unsubscribe.bind(this));
+    disconnectedCallback() {
+      this.effectsQueue.stop();
     }
 
-    _attachListeners() {
-      this._subscribeListeners.forEach((subscribe) => subscribe());
-      this._subscribeListeners = [];
-    }
+    render() {
+      const counter = Counter();
+      const useState = (initialValue) => {
+        const self = this;
+        const key = counter();
+        const _key = `_${key}`;
 
-    _removeListeners() {
-      this._unsubscribeListeners.forEach((unsubscribe) => unsubscribe());
-      this._unsubscribeListeners = [];
-    }
+        if (!self.state[_key]) {
+          self.state[_key] = initialValue;
+          Object.defineProperty(self.state, key, {
+            get() {
+              return self.state[_key];
+            },
+            set(value) {
+              const oldValue = self.state[_key];
+              self.state[_key] = value;
+              self.attributeChangedCallback(key, oldValue, value);
+            },
+          });
+        }
 
-    _render() {
-      let count = 0;
+        return [
+          self.state[key],
+          (value) => {
+            self.state[key] = value;
+          },
+        ];
+      };
+      const useEffect = (effect, dependencies) =>
+        this.queueEffect(counter(), effect, dependencies);
+      const useEventListener = (selector, event, handler) =>
+        this.queueEffect(counter(), () => {
+          this.shadowRoot
+            .querySelector(selector)
+            ?.addEventListener(event, (e) => handler(e, this));
+          return () =>
+            this.shadowRoot
+              .querySelector(selector)
+              ?.removeEventListener(event, (e) => handler(e, this));
+        });
+
       this.shadowRoot.innerHTML = renderFn({
         ...pick(props, this),
-        useEventListener: this.useEventListener.bind(this),
-        useState: (initialValue) => {
-          count++;
-          return this.useState(initialValue, count);
-        },
+        useEffect,
+        useEventListener,
+        useState,
       });
     }
   };
