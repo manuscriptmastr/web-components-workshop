@@ -58,6 +58,7 @@ export class Form extends HTMLElement {
   unlisten() {
     this._listeners = this._listeners ?? [];
     this._listeners.forEach((removeListener) => removeListener());
+    this._listeners = [];
   }
 
   connectedCallback() {
