@@ -1,3 +1,4 @@
+import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { equals, pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 
 const Counter = () => {
@@ -127,23 +128,16 @@ export const reactiveElement = (tag, props, renderFn) => {
       };
       const useEffect = (effect, dependencies) =>
         this.queueEffect(counter(), effect, dependencies);
-      const useEventListener = (selector, event, handler) =>
-        this.queueEffect(counter(), () => {
-          this.shadowRoot
-            .querySelector(selector)
-            ?.addEventListener(event, (e) => handler(e, this));
-          return () =>
-            this.shadowRoot
-              .querySelector(selector)
-              ?.removeEventListener(event, (e) => handler(e, this));
-        });
 
-      this.shadowRoot.innerHTML = renderFn({
-        ...pick(props, this),
-        useEffect,
-        useEventListener,
-        useState,
-      });
+      render(
+        renderFn({
+          ...pick(props, this),
+          host: this,
+          useEffect,
+          useState,
+        }),
+        this.shadowRoot
+      );
     }
   };
 

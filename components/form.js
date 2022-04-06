@@ -1,9 +1,10 @@
+import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 export const Form = reactiveElement(
   'app-form',
   [],
-  ({ useEffect, useEventListener, useState }) => {
+  ({ useEffect, useState }) => {
     const [origin, setOrigin] = useState('Worka, Ethiopia');
     useEffect(() => {
       console.log('Rendering Form');
@@ -11,7 +12,12 @@ export const Form = reactiveElement(
         console.log('Cleanup up Form');
       };
     });
-    useEventListener('form-input', 'input', (event) => setOrigin(event.detail));
-    return `<form><form-input label="Origin" value="${origin}"></form-input></form>`;
+    return html`<form>
+      <form-input
+        label="Origin"
+        value="${origin}"
+        @input="${(event) => setOrigin(event.detail)}"
+      ></form-input>
+    </form>`;
   }
 );
