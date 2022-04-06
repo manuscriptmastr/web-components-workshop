@@ -32,3 +32,27 @@ export const FormInput = reactiveElement(
 	`;
   }
 );
+
+const connect = (store, mapStateToProps, Component) =>
+  class extends Component {
+    _unsubscribeFromStore = () => {};
+
+    connectedCallback() {
+      super.connectedCallback();
+      this._unsubscribeFromStore = store.subscribe((state) => {
+        const newState = mapStateToProps(state);
+        Object.entries(newState).forEach(([key, value]) => {
+          const oldValue = this.hasOwnProperty(key) ? oldValue : null;
+          this[key] = value;
+          this.attributeChangedCallback(key, oldValue, value);
+        });
+      });
+    }
+
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      this._unsubscribeFromStore();
+    }
+  };
+
+compose(connect(({ origin }) => ({ origin })))(FormInput);
