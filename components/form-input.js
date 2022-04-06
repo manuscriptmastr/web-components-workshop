@@ -11,11 +11,11 @@ export const FormInput = reactiveElement(
   ['label', 'value'],
   ({ label, value, useEffect, host }) => {
     useEffect(() => {
-      console.log('Rendering Form Input');
+      console.log('Connecting <form-input>');
       return () => {
-        console.log('Cleaning up Form Input');
+        console.log('Disconnecting <form-input>');
       };
-    });
+    }, []);
     const id = label.toLowerCase();
     return html`
       <style>

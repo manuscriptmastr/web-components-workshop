@@ -7,11 +7,11 @@ export const Form = reactiveElement(
   ({ useEffect, useState }) => {
     const [origin, setOrigin] = useState('Worka, Ethiopia');
     useEffect(() => {
-      console.log('Rendering Form');
+      console.log('Connecting <app-form>');
       return () => {
-        console.log('Cleanup up Form');
+        console.log('Disconnecting <app-form>');
       };
-    });
+    }, []);
     return html`<form>
       <form-input
         label="Origin"
