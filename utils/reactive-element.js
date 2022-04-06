@@ -2,7 +2,9 @@ export class ReactiveElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+  }
 
+  setupState() {
     const self = this;
     Object.entries(self.state ?? {}).forEach(([key, value]) => {
       self.state[`_${key}`] = value;
@@ -34,11 +36,11 @@ export class ReactiveElement extends HTMLElement {
   unlisten() {
     this._listeners = this._listeners ?? [];
     this._listeners.forEach((removeListener) => removeListener());
-    this._listeners = [];
   }
 
   connectedCallback() {
     this._connected = true;
+    this.setupState();
     this.render();
     this.unlisten();
     this.listen();
