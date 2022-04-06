@@ -1,14 +1,11 @@
-export class FormInput extends HTMLElement {
+import { ReactiveElement } from '../utils/reactive-element.js';
+
+export class FormInput extends ReactiveElement {
   static observedAttributes = ['label', 'value'];
 
   listeners = [
     { selector: 'input', event: 'input', handler: this.handleInput.bind(this) },
   ];
-
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-  }
 
   get label() {
     return this.getAttribute('label');
@@ -43,43 +40,6 @@ export class FormInput extends HTMLElement {
       <label for="${this.id}">${this.label}</label>
       <input value="${this.value}" id="${this.id}" />
     `;
-  }
-
-  listen() {
-    this._listeners = this._listeners ?? [];
-    this.listeners?.forEach(({ selector, event, handler }) => {
-      this.shadowRoot.querySelector(selector)?.addEventListener(event, handler);
-      this._listeners.push(() =>
-        this.shadowRoot
-          .querySelector(selector)
-          ?.removeEventListener(event, handler)
-      );
-    });
-  }
-
-  unlisten() {
-    this._listeners = this._listeners ?? [];
-    this._listeners.forEach((removeListener) => removeListener());
-  }
-
-  connectedCallback() {
-    this._connected = true;
-    this.render();
-    this.unlisten();
-    this.listen();
-  }
-
-  attributeChangedCallback(key, prev, curr) {
-    if (prev !== curr && this._connected) {
-      this.render();
-      this.unlisten();
-      this.listen();
-    }
-  }
-
-  disconnectedCallback() {
-    this.unlisten();
-    this._connected = false;
   }
 }
 
