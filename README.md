@@ -1,43 +1,22 @@
 # Web Components Workshop
 
-1. Setting up `index.html` with `<form-input>`
+## :point_down: Start Here
 
-   - `<form-input value label id></form-input>` (Note the closing tag and 2+ words are required for custom elements)`
-   - `type="module"`
-   - `customElements.define()`
-   - `class extends HTMLElement {}`
-   - One-time setup with `constructor()` and `innerHTML`
-   - Note: we cannot inspect DOM nodes inside `<form-input>`
+The `main` branch is your playground to follow along with the workshop.
 
-2. Making `<form-input>` reactive
+This workshop is divided into modules and sections. To see the end result of each section, run `git checkout {module}.{section}`. Any project setup related to that section can be found in the README.
 
-   - Moving `innerHTML` call to lifecycles `connectedCallback()` and `disconnectedCallback()`
-   - Adding event listener to `<input>` (`oninput` vs. `addEventListener('input')`)
-   - Syncing attributes and properties with getters and setters (props, computed props)
-   - `observedAttributes`
-   - `attributeChangedCallback()` to re-render and reset event listeners
+## FAQ
 
-3. Refactor reactive boilerplate
+### What are web components, and why should I care?
 
-   - `ReactiveElement` handles adding/removing event listeners and calling `render()`
-   - Static `styles` is used by render call
-   - Static `properties` is used by `ReactiveElement` to generate observed attributes and getters/setters
+Web components are actually a collection of native browser API's including [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM), [custom elements](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements), and HTML tags like [`<template>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLTemplateElement) and [`<slot>`](https://developer.mozilla.org/en-US/docs/Web/API/Element/slot). These API's allow developers to build highly reusable components without a dedicated framework tooling such as React, Angular, or Vue.
 
-4. Separate properties from state
+**These well-supported API's have caused a slow but definite shift in how the web community approaches builds UI for web**, manifesting in one of two ways:
 
-   - `<app-form>` manages form state
-   - Static `properties` and `state`
-   - Updating DOM and event listeners
+1.  Updating popular frameworks to use web component API's under the hood
+2.  Building web components directly, but supplementing gaps like reactive properties, state management, and performant rendering with specific tooling for each challenge.
 
-5. Encapsulate component with ShadowDOM
+The second approach has itself created loose frameworks like [Lit](https://lit.dev/), [Stencil](https://stenciljs.com/), and [Hybrids](https://hybrids.js.org/#/).
 
-   - Inherit CSS variables from `global.css`
-   - Add `vendor.css` with unexpected `input` color
-   - `this.attachShadow({ mode: 'open' })` and `this.shadowRoot`
-
-6. Create a functional `reactiveElement()`
-   - Override `_render()`, `_attachListeners()`, and `_removeListeners()`
-   - Add `useEventListener()`
-   - Notice generic `removing -> rendering -> adding` pattern. How can we leverage this in the future for other effects?
-   - Make `<form-input>` functional
-   - Add `useState()`
+While it would be easy to simply advocate and teach these new frameworks, **the goal of this workshop is to work as closely as possible with web components**, addressing the core reactive UI problems head on, and usually with more than one solution. This approach will equip developers to pick tools for their projects that balance control, abstraction, elegance, maintainability, and testability.
