@@ -6,7 +6,7 @@ export class ReactiveElement extends HTMLElement {
     this.attachShadow({ mode: 'open' });
   }
 
-  setupState() {
+  _setupState() {
     const self = this;
     Object.entries(self.state ?? {}).forEach(([key, value]) => {
       self.state[`_${key}`] = value;
@@ -29,7 +29,7 @@ export class ReactiveElement extends HTMLElement {
 
   connectedCallback() {
     this._connected = true;
-    this.setupState();
+    this._setupState();
     this._render();
   }
 
