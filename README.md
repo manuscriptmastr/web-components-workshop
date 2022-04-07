@@ -6,7 +6,7 @@ The `main` branch is your playground to follow along with the workshop.
 
 This workshop is divided into modules and sections. To see the end result of each section, run `git checkout {module}.{section}`. Any project setup related to that section can be found in the README.
 
-## FAQ
+## :hand: FAQ
 
 ### What are web components, and why should I care?
 
