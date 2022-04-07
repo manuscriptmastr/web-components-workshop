@@ -2,15 +2,7 @@ import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 export class FormInput extends ReactiveElement {
-  static observedAttributes = ['label', 'value'];
-
-  get label() {
-    return this.getAttribute('label');
-  }
-
-  get value() {
-    return this.getAttribute('value');
-  }
+  static properties = ['label', 'value'];
 
   get id() {
     return this.label.toLowerCase();

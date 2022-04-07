@@ -1,9 +1,25 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 
 export class ReactiveElement extends HTMLElement {
+  static get observedAttributes() {
+    return this.properties ?? [];
+  }
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this._setupProperties();
+  }
+
+  _setupProperties() {
+    const self = this;
+    self.constructor.observedAttributes.forEach((attribute) => {
+      Object.defineProperty(self, attribute, {
+        get() {
+          return self.getAttribute(attribute);
+        },
+      });
+    });
   }
 
   _setupState() {
