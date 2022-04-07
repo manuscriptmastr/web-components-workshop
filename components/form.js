@@ -12,12 +12,14 @@ export const Form = reactiveElement(
         console.log('Disconnecting <app-form>');
       };
     }, []);
-    return html`<form>
-      <form-input
-        label="Origin"
-        value="${origin}"
-        @input="${(event) => setOrigin(event.detail)}"
-      ></form-input>
-    </form>`;
+    return html`
+      <form>
+        <form-input
+          label="Origin"
+          value="${origin}"
+          @input="${(event) => setOrigin(event.detail)}"
+        ></form-input>
+      </form>
+    `;
   }
 );

@@ -69,52 +69,40 @@ export const reactiveElement = (tag, props, renderFn) => {
     constructor() {
       super();
       this.attachShadow({ mode: 'open' });
-      this.constructor.observedAttributes.forEach((attribute) => {
-        Object.defineProperty(this, attribute, {
+      this._setupProperties();
+    }
+
+    _setupProperties() {
+      const self = this;
+      self.constructor.observedAttributes.forEach((attribute) => {
+        Object.defineProperty(self, attribute, {
           get() {
-            return this.getAttribute(attribute);
+            return self.getAttribute(attribute);
           },
         });
       });
     }
 
-    queueEffect(key, effect, dependencies) {
+    _queueEffect(key, effect, dependencies) {
       this.effectsQueue.set(key, effect, dependencies);
     }
 
-    connectedCallback() {
-      this.render();
-      this.effectsQueue.start();
-    }
-
-    attributeChangedCallback(key, prev, curr) {
-      if (prev !== curr) {
-        this.render();
-        this.effectsQueue.start();
-      }
-    }
-
-    disconnectedCallback() {
-      this.effectsQueue.stop();
-    }
-
-    render() {
+    _render() {
       const counter = Counter();
       const useState = (initialValue) => {
         const self = this;
         const key = counter();
-        const _key = `_${key}`;
 
-        if (!self.state[_key]) {
-          self.state[_key] = initialValue;
+        if (!self.state[`_${key}`]) {
+          self.state[`_${key}`] = initialValue;
           Object.defineProperty(self.state, key, {
             get() {
-              return self.state[_key];
+              return self.state[`_${key}`];
             },
-            set(value) {
-              const oldValue = self.state[_key];
-              self.state[_key] = value;
-              self.attributeChangedCallback(key, oldValue, value);
+            set(newValue) {
+              const oldValue = self.state[`_${key}`];
+              self.state[`_${key}`] = newValue;
+              self.attributeChangedCallback(key, oldValue, newValue);
             },
           });
         }
@@ -127,7 +115,7 @@ export const reactiveElement = (tag, props, renderFn) => {
         ];
       };
       const useEffect = (effect, dependencies) =>
-        this.queueEffect(counter(), effect, dependencies);
+        this._queueEffect(counter(), effect, dependencies);
 
       render(
         renderFn({
@@ -138,6 +126,24 @@ export const reactiveElement = (tag, props, renderFn) => {
         }),
         this.shadowRoot
       );
+    }
+
+    connectedCallback() {
+      this._connected = true;
+      this._render();
+      this.effectsQueue.start();
+    }
+
+    attributeChangedCallback(key, prev, curr) {
+      if (prev !== curr && this._connected) {
+        this._render();
+        this.effectsQueue.start();
+      }
+    }
+
+    disconnectedCallback() {
+      this.effectsQueue.stop();
+      this._connected = false;
     }
   };
 
