@@ -1,3 +1,5 @@
+import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+
 export class ReactiveElement extends HTMLElement {
   constructor() {
     super();
@@ -21,41 +23,23 @@ export class ReactiveElement extends HTMLElement {
     });
   }
 
-  listen() {
-    this._listeners = this._listeners ?? [];
-    this.listeners?.forEach(({ selector, event, handler }) => {
-      this.shadowRoot.querySelector(selector)?.addEventListener(event, handler);
-      this._listeners.push(() =>
-        this.shadowRoot
-          .querySelector(selector)
-          ?.removeEventListener(event, handler)
-      );
-    });
-  }
-
-  unlisten() {
-    this._listeners = this._listeners ?? [];
-    this._listeners.forEach((removeListener) => removeListener());
+  _render() {
+    render(this.render(), this.shadowRoot);
   }
 
   connectedCallback() {
     this._connected = true;
     this.setupState();
-    this.render();
-    this.unlisten();
-    this.listen();
+    this._render();
   }
 
   attributeChangedCallback(key, prev, curr) {
     if (prev !== curr && this._connected) {
-      this.render();
-      this.unlisten();
-      this.listen();
+      this._render();
     }
   }
 
   disconnectedCallback() {
-    this.unlisten();
     this._connected = false;
   }
 }

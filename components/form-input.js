@@ -1,11 +1,8 @@
+import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 export class FormInput extends ReactiveElement {
   static observedAttributes = ['label', 'value'];
-
-  listeners = [
-    { selector: 'input', event: 'input', handler: this.handleInput.bind(this) },
-  ];
 
   get label() {
     return this.getAttribute('label');
@@ -27,7 +24,7 @@ export class FormInput extends ReactiveElement {
   }
 
   render() {
-    this.shadowRoot.innerHTML = `
+    return html`
       <style>
         label {
           color: var(--color-primary);
@@ -38,7 +35,11 @@ export class FormInput extends ReactiveElement {
         }
       </style>
       <label for="${this.id}">${this.label}</label>
-      <input value="${this.value}" id="${this.id}" />
+      <input
+        value="${this.value}"
+        id="${this.id}"
+        @input="${this.handleInput.bind(this)}"
+      />
     `;
   }
 }

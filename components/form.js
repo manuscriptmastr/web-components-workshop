@@ -1,3 +1,4 @@
+import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 export class Form extends ReactiveElement {
@@ -5,24 +6,20 @@ export class Form extends ReactiveElement {
     origin: 'Worka, Ethiopia',
   };
 
-  listeners = [
-    {
-      selector: 'form-input',
-      event: 'input',
-      handler: this.handleInput.bind(this),
-    },
-  ];
-
   handleInput(event) {
     this.state.origin = event.detail;
   }
 
   render() {
-    this.shadowRoot.innerHTML = `
-			<form>
-				<form-input label="Origin" value="${this.state.origin}"></form-input>
-			</form>
-		`;
+    return html`
+      <form>
+        <form-input
+          label="Origin"
+          value="${this.state.origin}"
+          @input="${this.handleInput.bind(this)}"
+        ></form-input>
+      </form>
+    `;
   }
 }
 
