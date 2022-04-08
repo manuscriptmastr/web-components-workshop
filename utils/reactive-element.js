@@ -5,6 +5,32 @@ export class ReactiveElement extends HTMLElement {
     return this.properties ?? [];
   }
 
+  static createProperty(object, key) {
+    Object.defineProperty(object, key, {
+      get() {
+        return object.getAttribute(key);
+      },
+    });
+  }
+
+  static createState(object, key, initialValue) {
+    if (!object.state.hasOwnProperty(`_${key}`)) {
+      object.state[`_${key}`] = initialValue;
+      Object.defineProperty(object.state, key, {
+        get() {
+          return object.state[`_${key}`];
+        },
+        set(newValue) {
+          const oldValue = object.state[`_${key}`];
+          object.state[`_${key}`] = newValue;
+          object.attributeChangedCallback(key, oldValue, newValue);
+        },
+      });
+    }
+  }
+
+  state = {};
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -12,31 +38,15 @@ export class ReactiveElement extends HTMLElement {
   }
 
   _setupProperties() {
-    const self = this;
-    self.constructor.observedAttributes.forEach((attribute) => {
-      Object.defineProperty(self, attribute, {
-        get() {
-          return self.getAttribute(attribute);
-        },
-      });
-    });
+    this.constructor.observedAttributes.forEach((attr) =>
+      this.constructor.createProperty(this, attr)
+    );
   }
 
   _setupState() {
-    const self = this;
-    Object.entries(self.state ?? {}).forEach(([key, value]) => {
-      self.state[`_${key}`] = value;
-      Object.defineProperty(self.state, key, {
-        get() {
-          return self.state[`_${key}`];
-        },
-        set(newValue) {
-          const oldValue = self.state[`_${key}`];
-          self.state[`_${key}`] = newValue;
-          self.attributeChangedCallback(key, oldValue, newValue);
-        },
-      });
-    });
+    Object.entries(this.state).forEach(([key, value]) =>
+      this.constructor.createState(this, key, value)
+    );
   }
 
   _render() {
