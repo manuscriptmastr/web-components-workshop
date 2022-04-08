@@ -1,13 +1,75 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { equals, pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 
-const Counter = () => {
-  let count = -1;
-  return () => {
-    count++;
-    return count;
-  };
-};
+export class ReactiveElement extends HTMLElement {
+  static get observedAttributes() {
+    return this.properties ?? [];
+  }
+
+  static createProperty(object, key) {
+    Object.defineProperty(object, key, {
+      get() {
+        return object.getAttribute(key);
+      },
+    });
+  }
+
+  static createState(object, key, initialValue) {
+    if (!object.state.hasOwnProperty(`_${key}`)) {
+      object.state[`_${key}`] = initialValue;
+      Object.defineProperty(object.state, key, {
+        get() {
+          return object.state[`_${key}`];
+        },
+        set(newValue) {
+          const oldValue = object.state[`_${key}`];
+          object.state[`_${key}`] = newValue;
+          object.attributeChangedCallback(key, oldValue, newValue);
+        },
+      });
+    }
+  }
+
+  state = {};
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this._setupProperties();
+  }
+
+  _setupProperties() {
+    this.constructor.observedAttributes.forEach((attr) =>
+      this.constructor.createProperty(this, attr)
+    );
+  }
+
+  _setupState() {
+    Object.entries(this.state).forEach(([key, value]) =>
+      this.constructor.createState(this, key, value)
+    );
+  }
+
+  _render() {
+    render(this.render(), this.shadowRoot);
+  }
+
+  connectedCallback() {
+    this._connected = true;
+    this._setupState();
+    this._render();
+  }
+
+  attributeChangedCallback(key, prev, curr) {
+    if (prev !== curr && this._connected) {
+      this._render();
+    }
+  }
+
+  disconnectedCallback() {
+    this._connected = false;
+  }
+}
 
 class EffectsQueue {
   queue = new Map();
@@ -58,30 +120,19 @@ class EffectsQueue {
   }
 }
 
-export const reactiveElement = (tag, props, renderFn) => {
-  const Element = class extends HTMLElement {
-    static observedAttributes = props;
+const Counter = () => {
+  let count = -1;
+  return () => {
+    count++;
+    return count;
+  };
+};
 
-    state = {};
+export const reactiveElement = (tag, props, renderFn) => {
+  const Element = class extends ReactiveElement {
+    static properties = props;
 
     effectsQueue = new EffectsQueue();
-
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-      this._setupProperties();
-    }
-
-    _setupProperties() {
-      const self = this;
-      self.constructor.observedAttributes.forEach((attribute) => {
-        Object.defineProperty(self, attribute, {
-          get() {
-            return self.getAttribute(attribute);
-          },
-        });
-      });
-    }
 
     _queueEffect(key, effect, dependencies) {
       this.effectsQueue.set(key, effect, dependencies);
@@ -90,29 +141,9 @@ export const reactiveElement = (tag, props, renderFn) => {
     _render() {
       const counter = Counter();
       const useState = (initialValue) => {
-        const self = this;
         const key = counter();
-
-        if (!self.state[`_${key}`]) {
-          self.state[`_${key}`] = initialValue;
-          Object.defineProperty(self.state, key, {
-            get() {
-              return self.state[`_${key}`];
-            },
-            set(newValue) {
-              const oldValue = self.state[`_${key}`];
-              self.state[`_${key}`] = newValue;
-              self.attributeChangedCallback(key, oldValue, newValue);
-            },
-          });
-        }
-
-        return [
-          self.state[key],
-          (value) => {
-            self.state[key] = value;
-          },
-        ];
+        this.constructor.createState(this, key, initialValue);
+        return [this.state[key], (newValue) => (this.state[key] = newValue)];
       };
       const useEffect = (effect, dependencies) =>
         this._queueEffect(counter(), effect, dependencies);
@@ -126,26 +157,16 @@ export const reactiveElement = (tag, props, renderFn) => {
         }),
         this.shadowRoot
       );
-    }
 
-    connectedCallback() {
-      this._connected = true;
-      this._render();
       this.effectsQueue.start();
     }
 
-    attributeChangedCallback(key, prev, curr) {
-      if (prev !== curr && this._connected) {
-        this._render();
-        this.effectsQueue.start();
-      }
-    }
-
     disconnectedCallback() {
+      super.disconnectedCallback();
       this.effectsQueue.stop();
-      this._connected = false;
     }
   };
 
   customElements.define(tag, Element);
+  return Element;
 };
