@@ -7,7 +7,6 @@ const handleInput = (event, host) => {
 };
 
 export const FormInput = reactiveElement(
-  'form-input',
   ['label', 'value'],
   ({ label, value, useEffect, host }) => {
     useEffect(() => {
@@ -36,3 +35,5 @@ export const FormInput = reactiveElement(
     `;
   }
 );
+
+customElements.define('form-input', FormInput);

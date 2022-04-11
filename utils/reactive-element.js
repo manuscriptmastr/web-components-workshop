@@ -128,7 +128,7 @@ const Counter = () => {
   };
 };
 
-export const reactiveElement = (tag, props, renderFn) => {
+export const reactiveElement = (props, renderFn) => {
   const Element = class extends ReactiveElement {
     static properties = props;
 
@@ -167,6 +167,5 @@ export const reactiveElement = (tag, props, renderFn) => {
     }
   };
 
-  customElements.define(tag, Element);
   return Element;
 };
