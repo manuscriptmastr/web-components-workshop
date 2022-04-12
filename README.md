@@ -1,6 +1,4 @@
-# Web Components Workshop
-
-## 1.1: A Tree Builds a Web Component (The Vanilla Edition)
+# 1.1: A Tree Builds a Web Component (The Vanilla Edition)
 
 ## :point_down: Start Here
 
