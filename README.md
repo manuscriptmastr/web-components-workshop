@@ -12,7 +12,7 @@ This workshop is divided into modules and sections. To see the end result of eac
 
 Web components are actually a collection of native browser API's including [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM), [custom elements](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements), and HTML tags like [`<template>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLTemplateElement) and [`<slot>`](https://developer.mozilla.org/en-US/docs/Web/API/Element/slot). These API's allow developers to build highly reusable components without a dedicated framework tooling such as React, Angular, or Vue.
 
-**These well-supported API's have caused a slow but definite shift in how the web community approaches builds UI for web**, manifesting in one of two ways:
+**These well-supported API's have caused a slow but definite shift in how the web community approaches building UI for web**, manifesting in one of two ways:
 
 1.  Updating popular frameworks to use web component API's under the hood
 2.  Building web components directly, but supplementing gaps like reactive properties, state management, and performant rendering with specific tooling for each challenge.
