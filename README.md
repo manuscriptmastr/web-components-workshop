@@ -12,6 +12,9 @@ serve .
 
 - `<form-input value label></form-input>`
 - `class extends HTMLElement {}`
+- `super()`
 - `customElements.define()`
 - Styles
-- Shadow DOM and global styles
+- Shadow DOM
+  - Slots with `<form-checkbox label></form-checkbox>`
+  - Vendor styles
