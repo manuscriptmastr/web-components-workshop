@@ -10,8 +10,9 @@ serve .
 
 ## Concepts
 
-- Getters and setters
+- Reactive getters and setters with `Object.defineProperty()`
 - Lifecycles: `connectedCallback()` and `disconnectedCallback()`
 - Event listeners
-- `observedAttributes()` and `attributeChangedCallback()`
-- State with `<app-form></app-form>` and `dispatchEvent()`
+- `observedAttributes` and `attributeChangedCallback()`
+- Reactive state
+- Events with `dispatchEvent()`
