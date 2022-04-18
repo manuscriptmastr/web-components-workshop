@@ -8,13 +8,7 @@ const handleInput = (event, host) => {
 
 export const FormInput = reactiveElement(
   ['label', 'value'],
-  ({ label, value, useEffect, host }) => {
-    useEffect(() => {
-      console.log('Connecting <form-input>');
-      return () => {
-        console.log('Disconnecting <form-input>');
-      };
-    }, []);
+  ({ label, value, host }) => {
     const id = label.toLowerCase();
     return html`
       <style>

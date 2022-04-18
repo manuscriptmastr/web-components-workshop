@@ -1,5 +1,6 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
-import { equals, pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+import { pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+import { focus, set, unfocus, unset } from './hooks.js';
 
 export class ReactiveElement extends HTMLElement {
   static get observedAttributes() {
@@ -71,55 +72,6 @@ export class ReactiveElement extends HTMLElement {
   }
 }
 
-class EffectsQueue {
-  queue = new Map();
-
-  get(key) {
-    return this.queue.get(key);
-  }
-
-  set(key, effect, deps) {
-    const { deps: prevDeps, cleanup } = this.queue.get(key) || {};
-    this.queue.set(key, { effect, deps, prevDeps, cleanup });
-  }
-
-  shouldFire(key) {
-    const { deps, prevDeps } = this.queue.get(key);
-    return Array.isArray(deps) && equals(deps, prevDeps) ? false : true;
-  }
-
-  fire(key) {
-    const { effect, ...rest } = this.queue.get(key);
-    if (this.shouldFire(key)) {
-      const cleanup = effect();
-      this.queue.set(key, { effect, ...rest, cleanup });
-    }
-  }
-
-  cleanup(key, hard = false) {
-    const { cleanup } = this.queue.get(key);
-    const _cleanup = typeof cleanup === 'function' ? cleanup : () => {};
-    if (hard || this.shouldFire(key)) {
-      _cleanup();
-    }
-  }
-
-  start() {
-    for (const [key] of this.queue) {
-      this.cleanup(key);
-    }
-    for (const [key] of this.queue) {
-      this.fire(key);
-    }
-  }
-
-  stop() {
-    for (const [key] of this.queue) {
-      this.cleanup(key, true);
-    }
-  }
-}
-
 const Counter = () => {
   let count = -1;
   return () => {
@@ -131,39 +83,30 @@ const Counter = () => {
 export const reactiveElement = (props, renderFn) => {
   const Element = class extends ReactiveElement {
     static properties = props;
+    static counter = Counter();
 
-    effectsQueue = new EffectsQueue();
-
-    _queueEffect(key, effect, dependencies) {
-      this.effectsQueue.set(key, effect, dependencies);
-    }
+    _uid = `${this.tagName.toLowerCase()}:${this.constructor.counter()}`;
 
     _render() {
-      const counter = Counter();
-      const useState = (initialValue) => {
-        const key = counter();
-        this.constructor.createState(this, key, initialValue);
-        return [this.state[key], (newValue) => (this.state[key] = newValue)];
-      };
-      const useEffect = (effect, dependencies) =>
-        this._queueEffect(counter(), effect, dependencies);
-
+      focus(this._uid);
       render(
         renderFn({
           ...pick(props, this),
           host: this,
-          useEffect,
-          useState,
         }),
         this.shadowRoot
       );
+      unfocus();
+    }
 
-      this.effectsQueue.start();
+    connectedCallback() {
+      set(this._uid, this);
+      super.connectedCallback();
     }
 
     disconnectedCallback() {
       super.disconnectedCallback();
-      this.effectsQueue.stop();
+      unset(this._uid);
     }
   };
 

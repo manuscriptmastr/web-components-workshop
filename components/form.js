@@ -1,20 +1,21 @@
 import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+import { useState } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
-export const Form = reactiveElement([], ({ useEffect, useState }) => {
+export const Form = reactiveElement([], () => {
   const [origin, setOrigin] = useState('Worka, Ethiopia');
-  useEffect(() => {
-    console.log('Connecting <app-form>');
-    return () => {
-      console.log('Disconnecting <app-form>');
-    };
-  }, []);
+  const [roaster, setRoaster] = useState('Madcap Coffee Company');
   return html`
     <form>
       <form-input
         label="Origin"
         value="${origin}"
         @input="${(event) => setOrigin(event.detail)}"
+      ></form-input>
+      <form-input
+        label="Roaster"
+        value="${roaster}"
+        @input="${(event) => setRoaster(event.detail)}"
       ></form-input>
     </form>
   `;
