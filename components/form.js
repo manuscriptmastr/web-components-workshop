@@ -1,16 +1,4 @@
 export class Form extends HTMLElement {
-  state = {
-    origin: 'Worka, Ethiopia',
-  };
-
-  listeners = [
-    {
-      selector: 'form-input',
-      event: 'input',
-      handler: this.handleInput.bind(this),
-    },
-  ];
-
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -23,13 +11,18 @@ export class Form extends HTMLElement {
           return self.state[`_${key}`];
         },
         set(newValue) {
-          const oldValue = self.state[`_${key}`];
           self.state[`_${key}`] = newValue;
-          self.attributeChangedCallback(key, oldValue, newValue);
+          self.render();
         },
       });
     });
+
+    this.render();
   }
+
+  state = {
+    origin: 'Worka, Ethiopia',
+  };
 
   handleInput(event) {
     this.state.origin = event.detail;
@@ -41,44 +34,10 @@ export class Form extends HTMLElement {
 				<form-input label="Origin" value="${this.state.origin}"></form-input>
 			</form>
 		`;
-  }
 
-  listen() {
-    this._listeners = this._listeners ?? [];
-    this.listeners?.forEach(({ selector, event, handler }) => {
-      this.shadowRoot.querySelector(selector)?.addEventListener(event, handler);
-      this._listeners.push(() =>
-        this.shadowRoot
-          .querySelector(selector)
-          ?.removeEventListener(event, handler)
-      );
-    });
-  }
-
-  unlisten() {
-    this._listeners = this._listeners ?? [];
-    this._listeners.forEach((removeListener) => removeListener());
-    this._listeners = [];
-  }
-
-  connectedCallback() {
-    this._connected = true;
-    this.render();
-    this.unlisten();
-    this.listen();
-  }
-
-  attributeChangedCallback(key, prev, curr) {
-    if (prev !== curr && this._connected) {
-      this.render();
-      this.unlisten();
-      this.listen();
-    }
-  }
-
-  disconnectedCallback() {
-    this.unlisten();
-    this._connected = false;
+    this.shadowRoot
+      .querySelector('form-input')
+      .addEventListener('input', this.handleInput.bind(this));
   }
 }
 

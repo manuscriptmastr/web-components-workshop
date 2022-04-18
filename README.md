@@ -10,9 +10,6 @@ serve .
 
 ## Concepts
 
-- Reactive getters and setters with `Object.defineProperty()`
-- Lifecycles: `connectedCallback()` and `disconnectedCallback()`
-- Event listeners
-- `observedAttributes` and `attributeChangedCallback()`
-- Reactive state
-- Events with `dispatchEvent()`
+- Getters
+- Events with `dispatchEvent()` and `addEventListener()`
+- Reactive state with `Object.defineProperty()`
