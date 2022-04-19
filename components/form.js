@@ -3,12 +3,12 @@ import { useEffect, useState } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 export const Form = reactiveElement([], () => {
+  const [origin, setOrigin] = useState('Worka, Ethiopia');
+  const [roaster, setRoaster] = useState('Madcap Coffee Company');
   useEffect(() => {
     console.log('<app-form> mounting effect');
     return () => console.log('<app-form> unmounting effect');
-  });
-  const [origin, setOrigin] = useState('Worka, Ethiopia');
-  const [roaster, setRoaster] = useState('Madcap Coffee Company');
+  }, []);
   return html`
     <form>
       <form-input

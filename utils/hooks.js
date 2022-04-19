@@ -1,3 +1,5 @@
+import { equals } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+
 export const Hooks = new (class {
   elements = new Map();
 
@@ -5,18 +7,19 @@ export const Hooks = new (class {
   _hookKey;
 
   get currentElement() {
-    if (
-      this._elementKey === undefined ||
-      !this.elements.has(this._elementKey)
-    ) {
-      throw new Error('Hooks must be called inside your render function.');
-    }
     return this.elements.get(this._elementKey);
   }
 
-  next() {
+  get currentHook() {
+    return this.elements.get(this._elementKey).hooks.get(this._hookKey);
+  }
+
+  createHook() {
     this._hookKey++;
-    return this._hookKey;
+    if (!this.currentHook) {
+      this.currentElement.hooks.set(this._hookKey, { uid: this._hookKey });
+    }
+    return this.currentHook;
   }
 
   setElement(element, hooks = new Map()) {
@@ -43,33 +46,31 @@ export const Hooks = new (class {
 })();
 
 export const useState = (initialValue) => {
-  const HOOK_KEY = Hooks.next();
-  const { element, hooks } = Hooks.currentElement;
-  if (!element.state.hasOwnProperty(HOOK_KEY)) {
-    element.constructor.createState(element, HOOK_KEY, initialValue);
-    hooks.set(HOOK_KEY, {});
-    Hooks.setElement(element, hooks.set(HOOK_KEY, hooks));
+  const { uid } = Hooks.createHook();
+  const { element } = Hooks.currentElement;
+  if (!element.state.hasOwnProperty(uid)) {
+    element.constructor.createState(element, uid, initialValue);
   }
-  return [
-    element.state[HOOK_KEY],
-    (newValue) => (element.state[HOOK_KEY] = newValue),
-  ];
+  return [element.state[uid], (newValue) => (element.state[uid] = newValue)];
 };
 
-export const useEffect = (fn) => {
-  const HOOK_KEY = Hooks.next();
-  const { element, hooks } = Hooks.currentElement;
-  if (typeof hooks.get(HOOK_KEY)?.cleanup === 'function') {
-    hooks.get(HOOK_KEY).cleanup();
+export const useEffect = (fn, deps) => {
+  const hook = Hooks.createHook();
+  const { cleanup, deps: prevDeps } = hook;
+  const dependenciesMatch = (prev, curr) =>
+    Array.isArray(curr) && equals(prev, curr);
+
+  hook.deps = deps;
+
+  if (!dependenciesMatch(prevDeps, deps) && typeof cleanup === 'function') {
+    cleanup();
   }
 
-  hooks.set(HOOK_KEY, {});
-  Hooks.setElement(element, hooks);
-
-  // defer until after render()
-  setTimeout(() => {
-    const cleanup = fn();
-    hooks.set(HOOK_KEY, { cleanup });
-    Hooks.setElement(element, hooks);
-  }, 0);
+  if (!cleanup || !dependenciesMatch(prevDeps, deps)) {
+    // defer until after render()
+    setTimeout(() => {
+      const cleanup = fn();
+      hook.cleanup = typeof cleanup === 'function' ? cleanup : () => {};
+    }, 0);
+  }
 };
