@@ -1,6 +1,6 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
-import { focus, set, unfocus, unset } from './hooks.js';
+import { Hooks } from './hooks.js';
 
 export class ReactiveElement extends HTMLElement {
   static get observedAttributes() {
@@ -88,7 +88,7 @@ export const reactiveElement = (props, renderFn) => {
     _uid = `${this.tagName.toLowerCase()}:${this.constructor.counter()}`;
 
     _render() {
-      focus(this._uid);
+      Hooks.focusElement(this);
       render(
         renderFn({
           ...pick(props, this),
@@ -96,17 +96,17 @@ export const reactiveElement = (props, renderFn) => {
         }),
         this.shadowRoot
       );
-      unfocus();
+      Hooks.unfocusElement(this);
     }
 
     connectedCallback() {
-      set(this._uid, this);
+      Hooks.setElement(this);
       super.connectedCallback();
     }
 
     disconnectedCallback() {
       super.disconnectedCallback();
-      unset(this._uid);
+      Hooks.removeElement(this);
     }
   };
 

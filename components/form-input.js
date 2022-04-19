@@ -1,4 +1,5 @@
 import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+import { useEffect } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 const handleInput = (event, host) => {
@@ -9,6 +10,10 @@ const handleInput = (event, host) => {
 export const FormInput = reactiveElement(
   ['label', 'value'],
   ({ label, value, host }) => {
+    useEffect(() => {
+      console.log('<form-input> mounting effect');
+      return () => console.log('<form-input> unmounting effect');
+    });
     const id = label.toLowerCase();
     return html`
       <style>

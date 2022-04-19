@@ -1,8 +1,12 @@
 import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
-import { useState } from '../utils/hooks.js';
+import { useEffect, useState } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 export const Form = reactiveElement([], () => {
+  useEffect(() => {
+    console.log('<app-form> mounting effect');
+    return () => console.log('<app-form> unmounting effect');
+  });
   const [origin, setOrigin] = useState('Worka, Ethiopia');
   const [roaster, setRoaster] = useState('Madcap Coffee Company');
   return html`
