@@ -11,5 +11,5 @@ serve .
 ## Concepts
 
 - `reactiveElement(tag, props, render)` mixin
-- Side effects with `useEffect(fn, deps?)`
 - `useState(initialValue)`
+- **Challenge**: side effects with `useEffect(fn, deps?)`
