@@ -8,7 +8,7 @@ export const Form = reactiveElement([], () => {
   useEffect(() => {
     console.log('<app-form> mounting effect');
     return () => console.log('<app-form> unmounting effect');
-  }, []);
+  }, [origin]);
   return html`
     <form>
       <form-input

@@ -3,51 +3,52 @@ import { equals } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 export const Hooks = new (class {
   elements = new Map();
 
-  _elementKey;
-  _hookKey;
+  currentElement;
+  hookKey = undefined;
 
-  get currentElement() {
-    return this.elements.get(this._elementKey);
+  findOrCreateHook(initialHook = {}) {
+    this.hookKey++;
+    const hooks = this.elements.get(this.currentElement);
+
+    const hook = Array.from(hooks).hasOwnProperty(this.hookKey)
+      ? Array.from(hooks)[this.hookKey]
+      : {
+          ...initialHook,
+          uid: `${this.currentElement.tagName.toLowerCase()}:hook:${
+            this.hookKey
+          }`,
+        };
+
+    hooks.add(hook);
+    return hook;
   }
 
-  get currentHook() {
-    return this.elements.get(this._elementKey).hooks.get(this._hookKey);
-  }
-
-  createHook() {
-    this._hookKey++;
-    if (!this.currentHook) {
-      this.currentElement.hooks.set(this._hookKey, { uid: this._hookKey });
-    }
-    return this.currentHook;
-  }
-
-  setElement(element, hooks = new Map()) {
-    this.elements.set(element._uid, { element, hooks });
+  setElement(element, hooks = new Set()) {
+    this.elements.set(element, hooks);
   }
 
   removeElement(element) {
-    const { hooks } = this.elements.get(element._uid);
-    for (const [_, { cleanup = () => {} }] of hooks) {
+    const hooks = this.elements.get(element);
+    for (const { cleanup = () => {} } of hooks) {
       cleanup();
     }
-    this.elements.delete(element._uid);
+    this.elements.delete(element);
   }
 
   focusElement(element) {
-    this._elementKey = element._uid;
-    this._hookKey = -1;
+    this.currentElement = element;
+    this.hookKey = -1;
   }
 
   unfocusElement() {
-    this._elementKey = undefined;
-    this._hookKey = undefined;
+    this.currentElement = undefined;
+    this.hookKey = undefined;
   }
 })();
 
 export const useState = (initialValue) => {
-  const { uid } = Hooks.createHook();
-  const { element } = Hooks.currentElement;
+  const { uid } = Hooks.findOrCreateHook();
+  const element = Hooks.currentElement;
   if (!element.state.hasOwnProperty(uid)) {
     element.constructor.createState(element, uid, initialValue);
   }
@@ -55,22 +56,22 @@ export const useState = (initialValue) => {
 };
 
 export const useEffect = (fn, deps) => {
-  const hook = Hooks.createHook();
-  const { cleanup, deps: prevDeps } = hook;
+  const hook = Hooks.findOrCreateHook({ deps });
   const dependenciesMatch = (prev, curr) =>
     Array.isArray(curr) && equals(prev, curr);
+  const hasCleanup = (hook) => typeof hook.cleanup === 'function';
 
-  hook.deps = deps;
-
-  if (!dependenciesMatch(prevDeps, deps) && typeof cleanup === 'function') {
-    cleanup();
+  if (!dependenciesMatch(hook.deps, deps) && hasCleanup(hook)) {
+    hook.cleanup();
   }
 
-  if (!cleanup || !dependenciesMatch(prevDeps, deps)) {
+  // If this is the first time running the hook or dependencies have changed
+  if (!dependenciesMatch(hook.deps, deps) || !hasCleanup(hook)) {
     // defer until after render()
     setTimeout(() => {
       const cleanup = fn();
       hook.cleanup = typeof cleanup === 'function' ? cleanup : () => {};
+      hook.deps = deps;
     }, 0);
   }
 };

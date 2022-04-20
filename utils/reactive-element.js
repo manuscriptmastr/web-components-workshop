@@ -85,8 +85,6 @@ export const reactiveElement = (props, renderFn) => {
     static properties = props;
     static counter = Counter();
 
-    _uid = `${this.tagName.toLowerCase()}:${this.constructor.counter()}`;
-
     _render() {
       Hooks.focusElement(this);
       render(
