@@ -1,32 +1,32 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 
-export class ReactiveElement extends HTMLElement {
-  static get observedAttributes() {
-    return this.properties ?? [];
-  }
+export const reactiveProperty = (object, key) => {
+  Object.defineProperty(object, key, {
+    get() {
+      return object.getAttribute(key);
+    },
+  });
+};
 
-  static createProperty(object, key) {
-    Object.defineProperty(object, key, {
+export const reactiveState = (object, key, initialValue) => {
+  if (!object.state.hasOwnProperty(`_${key}`)) {
+    object.state[`_${key}`] = initialValue;
+    Object.defineProperty(object.state, key, {
       get() {
-        return object.getAttribute(key);
+        return object.state[`_${key}`];
+      },
+      set(newValue) {
+        const oldValue = object.state[`_${key}`];
+        object.state[`_${key}`] = newValue;
+        object.attributeChangedCallback(key, oldValue, newValue);
       },
     });
   }
+};
 
-  static createState(object, key, initialValue) {
-    if (!object.state.hasOwnProperty(`_${key}`)) {
-      object.state[`_${key}`] = initialValue;
-      Object.defineProperty(object.state, key, {
-        get() {
-          return object.state[`_${key}`];
-        },
-        set(newValue) {
-          const oldValue = object.state[`_${key}`];
-          object.state[`_${key}`] = newValue;
-          object.attributeChangedCallback(key, oldValue, newValue);
-        },
-      });
-    }
+export class ReactiveElement extends HTMLElement {
+  static get observedAttributes() {
+    return this.properties ?? [];
   }
 
   state = {};
@@ -39,13 +39,13 @@ export class ReactiveElement extends HTMLElement {
 
   _setupProperties() {
     this.constructor.observedAttributes.forEach((attr) =>
-      this.constructor.createProperty(this, attr)
+      reactiveProperty(this, attr)
     );
   }
 
   _setupState() {
     Object.entries(this.state).forEach(([key, value]) =>
-      this.constructor.createState(this, key, value)
+      reactiveState(this, key, value)
     );
   }
 
