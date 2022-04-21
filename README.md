@@ -10,6 +10,6 @@ serve .
 
 ## Concepts
 
-- Getters
 - Events with `dispatchEvent()` and `addEventListener()`
 - Reactive state with `Object.defineProperty()`
+- Getters
