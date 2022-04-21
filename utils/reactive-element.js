@@ -72,18 +72,9 @@ export class ReactiveElement extends HTMLElement {
   }
 }
 
-const Counter = () => {
-  let count = -1;
-  return () => {
-    count++;
-    return count;
-  };
-};
-
 export const reactiveElement = (props, renderFn) => {
   const Element = class extends ReactiveElement {
     static properties = props;
-    static counter = Counter();
 
     _render() {
       Hooks.focusElement(this);
