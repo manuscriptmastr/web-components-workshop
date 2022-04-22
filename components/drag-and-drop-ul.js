@@ -19,7 +19,7 @@ const moveItem = (list, from, to) => {
 };
 
 export const DragAndDropUl = reactiveElement([], () => {
-  const [items, setItems] = useState(['a', 'b', 'c']);
+  const [items, setItems] = useState(['blue', 'green', 'red']);
 
   const handleDrop = (event, index) => {
     event.preventDefault();
@@ -44,7 +44,7 @@ export const DragAndDropUl = reactiveElement([], () => {
   return html`
     <style>
       ul {
-        background-color: var(--color-secondary);
+        background-color: gray;
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -54,13 +54,13 @@ export const DragAndDropUl = reactiveElement([], () => {
       }
 
       li {
-        background-color: var(--color-primary);
         color: white;
       }
     </style>
     <ul>
       ${items.map(
         (item, index) => html`<li
+          style="background-color: ${item}"
           draggable="true"
           tabindex="0"
           @keyup="${(event) => handleKeyDown(event, index)}"
@@ -68,7 +68,7 @@ export const DragAndDropUl = reactiveElement([], () => {
           @dragover="${(event) => handleDragOver(event)}"
           @drop="${(event) => handleDrop(event, index)}"
         >
-          Box ${item}
+          Box
         </li>`
       )}
     </ul>
