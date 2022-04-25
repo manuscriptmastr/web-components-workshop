@@ -41,35 +41,37 @@ export const DragAndDropUl = reactiveElement([], ({ host }) => {
   };
 
   const handleKeyUp = (event, index) => {
-    event.preventDefault();
-    switch (event.code) {
-      case 'ArrowUp':
-        if (index > 0 && allowMove) {
-          const from = index;
-          const to = index - 1;
-          setItems(moveItem(items, from, to));
-          setTab(to);
-        }
-        break;
-      case 'ArrowDown':
-        if (index < items.length - 1 && allowMove) {
-          const from = index;
-          const to = index + 1;
-          setItems(moveItem(items, from, to));
-          setTab(to);
-        }
-        break;
-      case 'Tab':
-        if (host.shadowRoot.activeElement.getAttribute('draggable')) {
-          const tab = Array.from(
-            host.shadowRoot.querySelectorAll('[draggable="true"]')
-          ).indexOf(host.shadowRoot.activeElement);
-          setTab(tab);
-        }
-        break;
-      case 'Space':
-        setAllowMove(!allowMove);
-        break;
+    const isActiveElementDraggable =
+      host.shadowRoot.activeElement.getAttribute('draggable');
+
+    let from;
+    let to = Array.from(
+      host.shadowRoot.querySelectorAll('[draggable="true"]')
+    ).indexOf(host.shadowRoot.activeElement);
+
+    if (isActiveElementDraggable) {
+      switch (event.code) {
+        case 'ArrowUp':
+          from = index;
+          to = index - 1;
+          if (index > 0 && allowMove) {
+            setItems(moveItem(items, from, to));
+          }
+          break;
+        case 'ArrowDown':
+          from = index;
+          to = index + 1;
+          if (index < items.length - 1 && allowMove) {
+            setItems(moveItem(items, from, to));
+          }
+          break;
+        case 'Space':
+          setAllowMove(!allowMove);
+          break;
+        default:
+          setAllowMove(false);
+      }
+      setTab(to);
     }
   };
 
@@ -90,9 +92,7 @@ export const DragAndDropUl = reactiveElement([], ({ host }) => {
       }
     </style>
     <button @click="${console.log}">This should be tabbable first</button>
-    <h1 id="h1">
-      Use the arrow key to move element higher or lower in priority
-    </h1>
+    <h1 id="h1">Press spacebar to reorder</h1>
     <ul role="listbox">
       ${items.map(
         (item, index) => html`<li
