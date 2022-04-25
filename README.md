@@ -12,5 +12,7 @@ serve .
 
 - Refactor: `class extends ReactiveElement {}`
 - Performant rendering with `html()` and `render()`
+- Lifecycles: `connectedCallback()` and `disconnectedCallback()`
 - Refactor event listeners
+- `observedAttributes` and `attributeChangedCallback()`
 - Refactor getters and `observedAttributes`
