@@ -15,10 +15,20 @@ export class ReactiveElement extends HTMLElement {
     });
   };
 
-  static reflectiveProperty = (object, key) => {
+  static reflectiveProperty = (object, key, type = String) => {
     Object.defineProperty(object, key, {
       get() {
-        return object.getAttribute(key);
+        const attribute = object.getAttribute(key);
+        const hasAttribute = object.hasAttribute(key);
+        return type === String
+          ? String(attribute)
+          : type === Number
+          ? Number(attribute)
+          : type === Boolean
+          ? attribute !== 'false' && hasAttribute
+            ? true
+            : false
+          : JSON.parse(attribute);
       },
     });
   };
@@ -32,8 +42,10 @@ export class ReactiveElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.constructor.observedAttributes.forEach((key) =>
-      ReactiveElement.reflectiveProperty(this, key)
+    this.constructor.observedAttributes.forEach((keyOrObj) =>
+      typeof keyOrObj === 'object'
+        ? ReactiveElement.reflectiveProperty(this, keyOrObj.name, keyOrObj.type)
+        : ReactiveElement.reflectiveProperty(this, keyOrObj)
     );
   }
 

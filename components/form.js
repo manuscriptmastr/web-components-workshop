@@ -14,6 +14,8 @@ export class Form extends ReactiveElement {
     return html`
       <form>
         <form-input
+          show
+          count="2"
           label="Origin"
           value="${this.state.origin}"
           @input="${this.handleInput.bind(this)}"
