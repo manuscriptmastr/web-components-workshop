@@ -6,6 +6,10 @@ export class Form extends ReactiveElement {
     origin: 'Worka, Ethiopia',
   };
 
+  hello = {
+    userId: 1,
+  };
+
   handleInput(event) {
     this.state.origin = event.detail;
   }
@@ -15,6 +19,7 @@ export class Form extends ReactiveElement {
       <form>
         <form-input
           label="Origin"
+          .hello=${this.hello}
           value="${this.state.origin}"
           @input="${this.handleInput.bind(this)}"
         ></form-input>
