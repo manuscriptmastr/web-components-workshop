@@ -1,4 +1,4 @@
-# 1.3: A Tree Builds a Web Component (The Class Edition)
+# 1.4: A Tree Builds a Web Component (The Functional/Hooks Edition)
 
 ## :point_down: Start Here
 
@@ -10,9 +10,7 @@ serve .
 
 ## Concepts
 
-- Refactor: `class extends ReactiveElement {}`
-- Performant rendering with `html()` and `render()`
-- Lifecycles: `connectedCallback()` and `disconnectedCallback()`
-- Refactor event listeners
-- `observedAttributes` and `attributeChangedCallback()`
-- Refactor getters and `observedAttributes`
+- `reactiveElement(props, render)`
+- `useState(initialValue) `
+- Refactor: `Hooks`
+- _Challenge_: side effects with `useEffect(fn, deps?)`
