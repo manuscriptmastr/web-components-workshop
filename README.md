@@ -10,6 +10,7 @@ serve .
 
 ## Concepts
 
-- `reactiveElement(tag, props, render)` mixin
+- `reactiveElement(props, render)`
 - `useState(initialValue)`
-- **Challenge**: side effects with `useEffect(fn, deps?)`
+- Refactor: `Hooks`
+- _Challenge_: side effects with `useEffect(fn, deps?)`
