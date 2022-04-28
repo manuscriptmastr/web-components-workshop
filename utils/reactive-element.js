@@ -37,7 +37,7 @@ export class ReactiveElement extends HTMLElement {
     );
   }
 
-  _render() {
+  update() {
     render(this.render(), this.shadowRoot);
   }
 
@@ -47,15 +47,15 @@ export class ReactiveElement extends HTMLElement {
         this.state,
         key,
         value,
-        this._render.bind(this)
+        this.update.bind(this)
       )
     );
-    this._render();
+    this.update();
   }
 
   attributeChangedCallback(key, prev, curr) {
     if (prev !== curr) {
-      this._render();
+      this.update();
     }
   }
 }
