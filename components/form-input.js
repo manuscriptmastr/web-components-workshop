@@ -1,21 +1,16 @@
 import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
-import { ReactiveElement } from '../utils/reactive-element.js';
+import { curry } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+import { reactiveElement } from '../utils/reactive-element.js';
 
-export class FormInput extends ReactiveElement {
-  static properties = ['label', 'value'];
+const handleInput = curry((host, event) => {
+  event.stopPropagation();
+  host.dispatchEvent(new CustomEvent('input', { detail: event.target.value }));
+});
 
-  get id() {
-    return this.label.toLowerCase();
-  }
-
-  handleInput(event) {
-    event.stopPropagation();
-    this.dispatchEvent(
-      new CustomEvent('input', { detail: event.target.value })
-    );
-  }
-
-  render() {
+export const FormInput = reactiveElement(
+  ['label', 'value'],
+  ({ label, value, host }) => {
+    const id = label.toLowerCase();
     return html`
       <style>
         label {
@@ -26,14 +21,10 @@ export class FormInput extends ReactiveElement {
           color: var(--color-secondary);
         }
       </style>
-      <label for="${this.id}">${this.label}</label>
-      <input
-        value="${this.value}"
-        id="${this.id}"
-        @input="${this.handleInput.bind(this)}"
-      />
+      <label for="${id}">${label}</label>
+      <input value="${value}" id="${id}" @input="${handleInput(host)}" />
     `;
   }
-}
+);
 
 customElements.define('form-input', FormInput);

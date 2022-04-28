@@ -1,4 +1,5 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+import { pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 
 export class ReactiveElement extends HTMLElement {
   static reactiveProperty = (object, key, initialValue, notify = () => {}) => {
@@ -59,3 +60,28 @@ export class ReactiveElement extends HTMLElement {
     }
   }
 }
+
+export const reactiveElement = (props, render) =>
+  class extends ReactiveElement {
+    static properties = props;
+
+    render() {
+      let count = -1;
+
+      const useState = (initialValue) => {
+        count++;
+        const key = `${this.tagName.toLowerCase()}:hook:${count}`;
+        if (!this.state.hasOwnProperty(key)) {
+          ReactiveElement.reactiveProperty(
+            this.state,
+            key,
+            initialValue,
+            this.update.bind(this)
+          );
+        }
+        return [this.state[key], (newValue) => (this.state[key] = newValue)];
+      };
+
+      return render({ host: this, ...pick(props, this), useState });
+    }
+  };
