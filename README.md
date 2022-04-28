@@ -12,5 +12,3 @@ serve .
 
 - `reactiveElement(props, render)`
 - `useState(initialValue)`
-- Refactor: `Hooks`
-- _Challenge_: side effects with `useEffect(fn, deps?)`
