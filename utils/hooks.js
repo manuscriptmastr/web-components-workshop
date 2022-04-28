@@ -1,4 +1,5 @@
 import { equals } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+import { reactiveProperty } from './reactive-property.js';
 
 export const Hooks = new (class {
   elements = new Map();
@@ -50,7 +51,12 @@ export const useState = (initialValue) => {
   const { uid } = Hooks.findOrCreateHook();
   const element = Hooks.currentElement;
   if (!element.state.hasOwnProperty(uid)) {
-    element.constructor.createState(element, uid, initialValue);
+    reactiveProperty(
+      element.state,
+      uid,
+      initialValue,
+      element.update.bind(element)
+    );
   }
   return [element.state[uid], (newValue) => (element.state[uid] = newValue)];
 };

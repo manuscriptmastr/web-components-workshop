@@ -1,34 +1,11 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
 import { pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 import { Hooks } from './hooks.js';
+import { reactiveProperty, reflectiveProperty } from './reactive-property.js';
 
 export class ReactiveElement extends HTMLElement {
   static get observedAttributes() {
-    return this.properties ?? [];
-  }
-
-  static createProperty(object, key) {
-    Object.defineProperty(object, key, {
-      get() {
-        return object.getAttribute(key);
-      },
-    });
-  }
-
-  static createState(object, key, initialValue) {
-    if (!object.state.hasOwnProperty(`_${key}`)) {
-      object.state[`_${key}`] = initialValue;
-      Object.defineProperty(object.state, key, {
-        get() {
-          return object.state[`_${key}`];
-        },
-        set(newValue) {
-          const oldValue = object.state[`_${key}`];
-          object.state[`_${key}`] = newValue;
-          object.attributeChangedCallback(key, oldValue, newValue);
-        },
-      });
-    }
+    return this.properties || [];
   }
 
   state = {};
@@ -36,34 +13,26 @@ export class ReactiveElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this._setupProperties();
-  }
-
-  _setupProperties() {
-    this.constructor.observedAttributes.forEach((attr) =>
-      this.constructor.createProperty(this, attr)
+    this.constructor.observedAttributes.forEach((key) =>
+      reflectiveProperty(this, key)
     );
   }
 
-  _setupState() {
-    Object.entries(this.state).forEach(([key, value]) =>
-      this.constructor.createState(this, key, value)
-    );
-  }
-
-  _render() {
+  update() {
     render(this.render(), this.shadowRoot);
   }
 
   connectedCallback() {
     this._connected = true;
-    this._setupState();
-    this._render();
+    Object.entries(this.state).forEach(([key, value]) =>
+      reactiveProperty(this.state, key, value, this.update.bind(this))
+    );
+    this.update();
   }
 
   attributeChangedCallback(key, prev, curr) {
     if (prev !== curr && this._connected) {
-      this._render();
+      this.update();
     }
   }
 
@@ -72,19 +41,17 @@ export class ReactiveElement extends HTMLElement {
   }
 }
 
-export const reactiveElement = (props, renderFn) => {
-  const Element = class extends ReactiveElement {
+export const reactiveElement = (props, render) =>
+  class extends ReactiveElement {
     static properties = props;
 
-    _render() {
+    render() {
+      return render({ host: this, ...pick(props, this) });
+    }
+
+    update() {
       Hooks.focusElement(this);
-      render(
-        renderFn({
-          ...pick(props, this),
-          host: this,
-        }),
-        this.shadowRoot
-      );
+      super.update();
       Hooks.unfocusElement(this);
     }
 
@@ -98,6 +65,3 @@ export const reactiveElement = (props, renderFn) => {
       Hooks.removeElement(this);
     }
   };
-
-  return Element;
-};
