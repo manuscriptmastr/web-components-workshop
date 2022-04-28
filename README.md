@@ -11,6 +11,6 @@ serve .
 ## Concepts
 
 - `reactiveElement(props, render)`
-- `useState(initialValue) `
+- `useState(initialValue)`
 - Refactor: `Hooks`
 - _Challenge_: side effects with `useEffect(fn, deps?)`
