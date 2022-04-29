@@ -81,3 +81,13 @@ export const useEffect = (fn, deps) => {
     }, 0);
   }
 };
+
+export const useAtom = (atom) => {
+  const hook = Hooks.findOrCreateHook();
+  const element = Hooks.currentElement;
+  if (!hook.cleanup) {
+    const cleanup = atom.subscribe(element.update.bind(element));
+    hook.cleanup = cleanup;
+  }
+  return [atom.getValue(), atom.update];
+};
