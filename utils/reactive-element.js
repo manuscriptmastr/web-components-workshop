@@ -13,7 +13,6 @@ export class ReactiveElement extends HTMLElement {
 
   constructor() {
     super();
-    this[connected] = false;
     this.attachShadow({ mode: 'open' });
     this.constructor.observedAttributes.forEach((key) =>
       reflectiveProperty(this, key)
@@ -43,19 +42,12 @@ export class ReactiveElement extends HTMLElement {
   }
 }
 
-const getters = (object) =>
-  Object.fromEntries(
-    Object.entries(Object.getOwnPropertyDescriptors(object))
-      .filter(([_, config]) => config.hasOwnProperty('get'))
-      .map(([key]) => [key, object[key]])
-  );
-
 export const reactiveElement = (props, render) =>
   class extends ReactiveElement {
     static properties = props;
 
     render() {
-      return render({ host: this, ...getters(this) });
+      return render({ host: this, ...this });
     }
 
     update() {

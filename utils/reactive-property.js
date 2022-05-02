@@ -14,6 +14,7 @@ export const reactiveProperty = (
       object[`_${key}`] = newValue;
       notify(key, oldValue, newValue);
     },
+    enumerable: true,
   });
 };
 
@@ -22,5 +23,6 @@ export const reflectiveProperty = (object, key) => {
     get() {
       return object.getAttribute(key);
     },
+    enumerable: true,
   });
 };
