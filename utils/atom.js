@@ -1,13 +1,15 @@
+import { curry } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 /**
- * const FormState = atom({ origin: '', roaster: '' })
+ * const FormState = atom('form', { origin: '', roaster: '' })
  * const unsubscribe = FormState.subscribe(console.log)
  * unsubscribe()
  */
-export const atom = (initialValue) => {
+export const atom = curry((key, initialValue) => {
   let VALUE = Object.freeze(initialValue);
   const subscribers = new Set();
 
   return {
+    key,
     getValue: () => VALUE,
     subscribe: (fn) => {
       subscribers.add(fn);
@@ -24,4 +26,4 @@ export const atom = (initialValue) => {
       }
     },
   };
-};
+});

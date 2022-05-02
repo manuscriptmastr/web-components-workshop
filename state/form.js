@@ -2,8 +2,8 @@ import { atom } from '../utils/atom.js';
 import { persist } from '../utils/persistence.js';
 
 export const FormState = persist(
-  { key: 'form' },
-  atom({
+  localStorage,
+  atom('form', {
     origin: '',
     roaster: '',
   })

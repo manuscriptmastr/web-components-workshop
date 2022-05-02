@@ -1,7 +1,8 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
-import { pick } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
 import { Hooks } from './hooks.js';
 import { reactiveProperty, reflectiveProperty } from './reactive-property.js';
+
+const connected = Symbol('connected');
 
 export class ReactiveElement extends HTMLElement {
   static get observedAttributes() {
@@ -12,6 +13,7 @@ export class ReactiveElement extends HTMLElement {
 
   constructor() {
     super();
+    this[connected] = false;
     this.attachShadow({ mode: 'open' });
     this.constructor.observedAttributes.forEach((key) =>
       reflectiveProperty(this, key)
@@ -23,7 +25,7 @@ export class ReactiveElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this._connected = true;
+    this[connected] = true;
     Object.entries(this.state).forEach(([key, value]) =>
       reactiveProperty(this.state, key, value, this.update.bind(this))
     );
@@ -31,22 +33,29 @@ export class ReactiveElement extends HTMLElement {
   }
 
   attributeChangedCallback(key, prev, curr) {
-    if (prev !== curr && this._connected) {
+    if (prev !== curr && this[connected]) {
       this.update();
     }
   }
 
   disconnectedCallback() {
-    this._connected = false;
+    this[connected] = false;
   }
 }
+
+const getters = (object) =>
+  Object.fromEntries(
+    Object.entries(Object.getOwnPropertyDescriptors(object))
+      .filter(([_, config]) => config.hasOwnProperty('get'))
+      .map(([key]) => [key, object[key]])
+  );
 
 export const reactiveElement = (props, render) =>
   class extends ReactiveElement {
     static properties = props;
 
     render() {
-      return render({ host: this, ...pick(props, this) });
+      return render({ host: this, ...getters(this) });
     }
 
     update() {
