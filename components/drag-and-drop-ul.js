@@ -1,15 +1,6 @@
 import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
-import { useEffect, useState } from '../utils/hooks.js';
+import { useState } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
-
-const handleDragStart = (event, index) => {
-  event.dataTransfer.setData('text/plain', index);
-};
-
-const handleDragOver = (event) => {
-  event.preventDefault();
-  event.dataTransfer.dropEffect = 'move';
-};
 
 const moveItem = (list, from, to) => {
   const _list = [...list];
@@ -20,58 +11,65 @@ const moveItem = (list, from, to) => {
 
 export const DragAndDropUl = reactiveElement([], ({ host }) => {
   const [items, setItems] = useState(['blue', 'green', 'red']);
-  const [tab, setTab] = useState(0);
   const [allowMove, setAllowMove] = useState(false);
-  useEffect(() => {
-    if (
-      host.shadowRoot.activeElement &&
-      host.shadowRoot.querySelectorAll('li')[tab] !==
-        host.shadowRoot.activeElement
-    ) {
-      host.shadowRoot.querySelectorAll('li')[tab].focus();
-    }
-  }, [tab, host.shadowRoot.activeElement]);
 
-  const handleDrop = (event, index) => {
-    event.preventDefault();
-    const from = parseInt(event.dataTransfer.getData('text/plain'), 10);
-    const to = index;
-    setItems(moveItem(items, from, to));
-    setTab(to);
+  const getPositionFromElement = (element) =>
+    Array.from(host.shadowRoot.querySelectorAll('[draggable="true"]')).indexOf(
+      element
+    );
+
+  const getElementFromPosition = (position) =>
+    Array.from(host.shadowRoot.querySelectorAll('[draggable="true"]'))[
+      position
+    ];
+
+  const handleDragStart = (event) => {
+    const position = getPositionFromElement(event.target);
+    event.dataTransfer.setData('text/plain', position);
   };
 
-  const handleKeyUp = (event, index) => {
-    const isActiveElementDraggable =
-      host.shadowRoot.activeElement.getAttribute('draggable');
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  };
 
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const from = parseInt(event.dataTransfer.getData('text/plain'), 10);
+    const to = getPositionFromElement(event.target);
+    setItems(moveItem(items, from, to));
+  };
+
+  const handleKeyUp = (event) => {
     let from;
-    let to = Array.from(
-      host.shadowRoot.querySelectorAll('[draggable="true"]')
-    ).indexOf(host.shadowRoot.activeElement);
+    let to = getPositionFromElement(event.target);
 
-    if (isActiveElementDraggable) {
-      switch (event.code) {
-        case 'ArrowUp':
-          from = index;
-          to = index - 1;
-          if (index > 0 && allowMove) {
-            setItems(moveItem(items, from, to));
-          }
-          break;
-        case 'ArrowDown':
-          from = index;
-          to = index + 1;
-          if (index < items.length - 1 && allowMove) {
-            setItems(moveItem(items, from, to));
-          }
-          break;
-        case 'Space':
-          setAllowMove(!allowMove);
-          break;
-        default:
-          setAllowMove(false);
-      }
-      setTab(to);
+    switch (event.code) {
+      case 'ArrowUp':
+        from = getPositionFromElement(event.target);
+        to = from - 1;
+        if (to >= 0 && allowMove) {
+          setItems(moveItem(items, from, to));
+          requestAnimationFrame(() => {
+            getElementFromPosition(to).focus();
+          });
+        }
+        break;
+      case 'ArrowDown':
+        from = getPositionFromElement(event.target);
+        to = from + 1;
+        if (to <= items.length - 1 && allowMove) {
+          setItems(moveItem(items, from, to));
+          requestAnimationFrame(() => {
+            getElementFromPosition(to).focus();
+          });
+        }
+        break;
+      case 'Space':
+        setAllowMove(!allowMove);
+        break;
+      default:
+        setAllowMove(false);
     }
   };
 
@@ -95,16 +93,16 @@ export const DragAndDropUl = reactiveElement([], ({ host }) => {
     <h1 id="h1">Press spacebar to reorder</h1>
     <ul role="listbox">
       ${items.map(
-        (item, index) => html`<li
+        (item) => html`<li
           aria-describedby="h1"
           role="option"
           tabindex="0"
           style="background-color: ${item}"
           draggable="true"
-          @keyup="${(event) => handleKeyUp(event, index)}"
-          @dragstart="${(event) => handleDragStart(event, index)}"
-          @dragover="${(event) => handleDragOver(event)}"
-          @drop="${(event) => handleDrop(event, index)}"
+          @keyup="${handleKeyUp}"
+          @dragstart="${handleDragStart}"
+          @dragover="${handleDragOver}"
+          @drop="${handleDrop}"
         >
           ${item} box
         </li>`
