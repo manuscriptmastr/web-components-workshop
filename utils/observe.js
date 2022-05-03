@@ -15,6 +15,7 @@ export const observe = curry(
             get() {
               return mapStateToProps(observable.getValue())[key];
             },
+            enumerable: true,
           });
         });
       }
