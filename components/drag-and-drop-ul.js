@@ -25,7 +25,12 @@ export const DragAndDropUl = reactiveElement([], ({ host }) => {
 
   const handleDragStart = (event) => {
     const position = getPositionFromElement(event.target);
+    event.target.style.cursor = 'move';
     event.dataTransfer.setData('text/plain', position);
+  };
+
+  const handleDragEnd = (event) => {
+    event.target.style.cursor = 'initial';
   };
 
   const handleDragOver = (event) => {
@@ -101,6 +106,7 @@ export const DragAndDropUl = reactiveElement([], ({ host }) => {
           draggable="true"
           @keyup="${handleKeyUp}"
           @dragstart="${handleDragStart}"
+          @dragend="${handleDragEnd}"
           @dragover="${handleDragOver}"
           @drop="${handleDrop}"
         >
