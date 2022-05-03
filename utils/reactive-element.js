@@ -1,41 +1,20 @@
 import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+import { reactiveProperty, reflectiveProperty } from './reactive-property.js';
 
 export class ReactiveElement extends HTMLElement {
-  static reactiveProperty = (object, key, initialValue, notify = () => {}) => {
-    object[`_${key}`] = initialValue;
-    Object.defineProperty(object, key, {
-      get() {
-        return object[`_${key}`];
-      },
-      set(newValue) {
-        const oldValue = object[`_${key}`];
-        object[`_${key}`] = newValue;
-        notify(key, oldValue, newValue);
-      },
-    });
-  };
-
-  static reflectiveProperty = (object, key) => {
-    Object.defineProperty(object, key, {
-      get() {
-        return object.getAttribute(key);
-      },
-    });
-  };
-
   static get observedAttributes() {
-    return this.properties || [];
+    return this.properties ?? [];
   }
-
-  state = {};
 
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
     this.constructor.observedAttributes.forEach((key) =>
-      ReactiveElement.reflectiveProperty(this, key)
+      reflectiveProperty(this, key)
     );
   }
+
+  state = {};
 
   update() {
     render(this.render(), this.shadowRoot);
@@ -43,12 +22,7 @@ export class ReactiveElement extends HTMLElement {
 
   connectedCallback() {
     Object.entries(this.state).forEach(([key, value]) =>
-      ReactiveElement.reactiveProperty(
-        this.state,
-        key,
-        value,
-        this.update.bind(this)
-      )
+      reactiveProperty(this.state, key, value, this.update.bind(this))
     );
     this.update();
   }
