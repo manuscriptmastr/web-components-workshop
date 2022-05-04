@@ -11,5 +11,5 @@ serve .
 ## Concepts
 
 - Refactor: `Hooks`
-- Fix: `this._connected` and `attributeChangedCallback()`
+- Fix: `this[connected]` and `attributeChangedCallback()`
 - _Challenge_: side effects with `useEffect(fn, deps?)`

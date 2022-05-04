@@ -10,9 +10,10 @@ export const reactiveProperty = (
       return object[`_${key}`];
     },
     set(newValue) {
-      const oldValue = object[`_${key}`];
-      object[`_${key}`] = newValue;
-      notify(key, oldValue, newValue);
+      if (object[`_${key}`] !== newValue) {
+        object[`_${key}`] = newValue;
+        notify();
+      }
     },
   });
 };
@@ -22,5 +23,6 @@ export const reflectiveProperty = (object, key) => {
     get() {
       return object.getAttribute(key);
     },
+    enumerable: true,
   });
 };
