@@ -11,6 +11,7 @@ serve .
 ## Concepts
 
 - Refactor: `class extends ReactiveElement {}`
+- Refactor: `reactiveProperty()` and `reflectiveProperty()`
 - Performant rendering with `html()` and `render()`
 - Lifecycles: `connectedCallback()` and `disconnectedCallback()`
 - Refactor event listeners
