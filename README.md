@@ -1,4 +1,4 @@
-# 1.5a: A Tree Builds a Web Component (The Functional/Hooks Edition)
+# 1.5a: A Tree Builds a Web Component (The Functional Edition)
 
 ## :point_down: Start Here
 
