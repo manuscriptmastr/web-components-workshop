@@ -11,6 +11,5 @@ serve .
 ## Concepts
 
 - Refactor: `Hooks`
-- Refactor: `reactiveProperty()` and `reflectiveProperty()`
 - Fix: `this._connected` and `attributeChangedCallback()`
 - _Challenge_: side effects with `useEffect(fn, deps?)`
