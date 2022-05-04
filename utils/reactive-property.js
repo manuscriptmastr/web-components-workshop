@@ -10,8 +10,10 @@ export const reactiveProperty = (
       return object[`_${key}`];
     },
     set(newValue) {
-      object[`_${key}`] = newValue;
-      notify();
+      if (object[`_${key}`] !== newValue) {
+        object[`_${key}`] = newValue;
+        notify();
+      }
     },
   });
 };

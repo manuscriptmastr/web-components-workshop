@@ -1,4 +1,4 @@
-# 1.3: A Tree Builds a Web Component (The Class Edition)
+# 1.4: A Tree Builds a Web Component (Application: Drag and Drop List)
 
 ## :point_down: Start Here
 
@@ -7,12 +7,3 @@ cd {rootDir}
 npm install -g serve
 serve .
 ```
-
-## Concepts
-
-- Refactor: `class extends ReactiveElement {}`
-- Performant rendering with `html()` and `render()`
-- Lifecycles: `connectedCallback()` and `disconnectedCallback()`
-- Refactor event listeners
-- `observedAttributes` and `attributeChangedCallback()`
-- Refactor getters and `observedAttributes`
