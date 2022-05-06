@@ -8,10 +8,23 @@ const moveItem = (list, from, to) => {
   return _list;
 };
 
+const ASSISTIVE_TEXT = {
+  initial: '',
+  enabled: (items, pos) =>
+    `Arrow keys enabled on item ${pos + 1} of ${items.length}.`,
+  moving: (items, from, to) =>
+    `Moving item ${from + 1} of ${items.length} to position ${to + 1} of ${
+      items.length
+    }.`,
+  finished: (items, pos) =>
+    `Finished moving item, final position ${pos + 1} of ${items.length}.`,
+};
+
 export class DragAndDropUl extends ReactiveElement {
   state = {
     items: ['blue', 'green', 'red'],
     allowMove: false,
+    assistiveText: ASSISTIVE_TEXT.initial,
   };
 
   getPositionFromElement = (element) =>
@@ -56,6 +69,11 @@ export class DragAndDropUl extends ReactiveElement {
         to = from - 1;
         if (to >= 0 && this.state.allowMove) {
           this.state.items = moveItem(this.state.items, from, to);
+          this.state.assistiveText = ASSISTIVE_TEXT.moving(
+            this.state.items,
+            from,
+            to
+          );
           requestAnimationFrame(() => {
             this.getElementFromPosition(to).focus();
           });
@@ -66,6 +84,11 @@ export class DragAndDropUl extends ReactiveElement {
         to = from + 1;
         if (to <= this.state.items.length - 1 && this.state.allowMove) {
           this.state.items = moveItem(this.state.items, from, to);
+          this.state.assistiveText = ASSISTIVE_TEXT.moving(
+            this.state.items,
+            from,
+            to
+          );
           requestAnimationFrame(() => {
             this.getElementFromPosition(to).focus();
           });
@@ -73,15 +96,39 @@ export class DragAndDropUl extends ReactiveElement {
         break;
       case 'Space':
         this.state.allowMove = !this.state.allowMove;
+        if (this.state.allowMove) {
+          this.state.assistiveText = ASSISTIVE_TEXT.enabled(
+            this.state.items,
+            to
+          );
+        } else {
+          this.state.assistiveText = ASSISTIVE_TEXT.finished(
+            this.state.items,
+            to
+          );
+        }
+        requestAnimationFrame(() => {
+          this.getElementFromPosition(to).focus();
+        });
         break;
       default:
         this.state.allowMove = false;
+        if (/^Moving item/.test(this.state.assistiveText)) {
+          this.state.assistiveText = ASSISTIVE_TEXT.finished(
+            this.state.items,
+            to
+          );
+        } else {
+          this.state.assistiveText = ASSISTIVE_TEXT.initial;
+        }
     }
   };
 
   render() {
     return html`
       <style>
+        @import 'screen-reader.css';
+
         ul {
           background-color: gray;
           display: flex;
@@ -96,12 +143,17 @@ export class DragAndDropUl extends ReactiveElement {
           color: white;
         }
       </style>
-      <button @click="${console.log}">This should be tabbable first</button>
-      <h1 id="h1">Press spacebar to reorder</h1>
+      <span role="alert" aria-live="assertive" sr-only
+        >${this.state.assistiveText}</span
+      >
+      <span id="drag-and-drop-instructions" sr-only
+        >Press spacebar to move focused item up or down with arrow keys. To
+        disable arrow keys, press spacebar again.</span
+      >
       <ul role="listbox">
         ${this.state.items.map(
           (item) => html`<li
-            aria-describedby="h1"
+            aria-describedby="drag-and-drop-instructions"
             role="option"
             tabindex="0"
             style="background-color: ${item}"
