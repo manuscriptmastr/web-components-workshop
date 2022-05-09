@@ -1,4 +1,4 @@
-# 1.5b: A Tree Builds a Web Component (The Hooks Edition)
+# 1.6: A Tree Builds a Web Component (The Hooks Edition)
 
 ## :point_down: Start Here
 
