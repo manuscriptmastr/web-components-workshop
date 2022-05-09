@@ -81,3 +81,13 @@ export const useEffect = (fn, deps) => {
     }, 0);
   }
 };
+
+export const useObservable = (observable) => {
+  const hook = Hooks.findOrCreateHook();
+  const element = Hooks.currentElement;
+  if (!hook.cleanup) {
+    const subscription = observable.subscribe(element.update.bind(element));
+    hook.cleanup = () => subscription.unsubscribe();
+  }
+  return [observable.getValue(), observable.next.bind(observable)];
+};
