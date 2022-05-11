@@ -21,7 +21,9 @@ export class ReactiveElement extends HTMLElement {
   [connected] = false;
 
   update() {
-    render(this.render(), this.shadowRoot);
+    if (this[connected]) {
+      render(this.render(), this.shadowRoot);
+    }
   }
 
   connectedCallback() {
@@ -33,7 +35,7 @@ export class ReactiveElement extends HTMLElement {
   }
 
   attributeChangedCallback(key, prev, curr) {
-    if (prev !== curr && this[connected]) {
+    if (prev !== curr) {
       this.update();
     }
   }
