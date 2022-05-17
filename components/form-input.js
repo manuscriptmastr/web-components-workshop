@@ -1,5 +1,5 @@
-import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
-import { curry } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+import { html } from 'lit-html';
+import { curry } from 'ramda';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 const handleInput = curry((host, event) => {
