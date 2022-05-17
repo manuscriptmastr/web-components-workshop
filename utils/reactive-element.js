@@ -1,4 +1,4 @@
-import { render } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+import { render } from 'lit-html';
 import { Hooks } from './hooks.js';
 import { reactiveProperty, reflectiveProperty } from './reactive-property.js';
 

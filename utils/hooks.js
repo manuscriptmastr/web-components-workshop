@@ -1,4 +1,4 @@
-import { equals } from 'https://unpkg.com/ramda@0.28.0/es/index.js';
+import { equals } from 'ramda';
 import { reactiveProperty } from './reactive-property.js';
 
 export const Hooks = new (class {
