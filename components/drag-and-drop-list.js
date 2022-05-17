@@ -1,4 +1,4 @@
-import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+import { html } from 'lit-html';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 const moveItem = (list, from, to) => {
