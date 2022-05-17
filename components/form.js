@@ -1,4 +1,4 @@
-import { html } from 'https://unpkg.com/lit-html@2.2.2/lit-html.js';
+import { html } from 'lit-html';
 import { useEffect, useState } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
