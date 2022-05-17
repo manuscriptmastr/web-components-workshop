@@ -1,29 +1,22 @@
 import { html } from 'lit-html';
+import { move } from 'ramda';
 import { ReactiveElement } from '../utils/reactive-element.js';
-
-const moveItem = (list, from, to) => {
-  const _list = [...list];
-  let cutOut = _list.splice(from, 1)[0];
-  _list.splice(to, 0, cutOut);
-  return _list;
-};
 
 const ASSISTIVE_TEXT = {
   initial: '',
-  enabled: (items, pos) =>
-    `Arrow keys enabled on item ${pos + 1} of ${items.length}.`,
-  moving: (items, from, to) =>
-    `Moving item ${from + 1} of ${items.length} to position ${to + 1} of ${
+  enabled:
+    'Entering reorder mode. Use up and down arrow keys to move item, then press spacebar to exit.',
+  moved: (items, from, to) =>
+    `Moved item ${from + 1} of ${items.length} to position ${to + 1} of ${
       items.length
     }.`,
-  finished: (items, pos) =>
-    `Finished moving item, final position ${pos + 1} of ${items.length}.`,
+  disabled: 'Exited reorder mode.',
 };
 
 export class DragAndDropUl extends ReactiveElement {
   state = {
     items: ['blue', 'green', 'red'],
-    allowMove: false,
+    reorderMode: false,
     assistiveText: ASSISTIVE_TEXT.initial,
   };
 
@@ -45,6 +38,7 @@ export class DragAndDropUl extends ReactiveElement {
 
   handleDragEnd = (event) => {
     event.target.style.cursor = 'initial';
+    event.target.style.filter = 'initial';
   };
 
   handleDragOver = (event) => {
@@ -52,11 +46,22 @@ export class DragAndDropUl extends ReactiveElement {
     event.dataTransfer.dropEffect = 'move';
   };
 
+  handleDragEnter = (event) => {
+    event.target.style.filter = 'brightness(50%)';
+  };
+
+  handleDragLeave = (event) => {
+    event.target.style.filter = 'initial';
+  };
+
   handleDrop = (event) => {
     event.preventDefault();
     const from = parseInt(event.dataTransfer.getData('text/plain'), 10);
     const to = this.getPositionFromElement(event.target);
-    this.state.items = moveItem(this.state.items, from, to);
+    this.state.items = move(from, to, this.state.items);
+    requestAnimationFrame(() => {
+      this.getElementFromPosition(to).focus();
+    });
   };
 
   handleKeyUp = (event) => {
@@ -67,9 +72,9 @@ export class DragAndDropUl extends ReactiveElement {
       case 'ArrowUp':
         from = this.getPositionFromElement(event.target);
         to = from - 1;
-        if (to >= 0 && this.state.allowMove) {
-          this.state.items = moveItem(this.state.items, from, to);
-          this.state.assistiveText = ASSISTIVE_TEXT.moving(
+        if (to >= 0 && this.state.reorderMode) {
+          this.state.items = move(from, to, this.state.items);
+          this.state.assistiveText = ASSISTIVE_TEXT.moved(
             this.state.items,
             from,
             to
@@ -82,9 +87,9 @@ export class DragAndDropUl extends ReactiveElement {
       case 'ArrowDown':
         from = this.getPositionFromElement(event.target);
         to = from + 1;
-        if (to <= this.state.items.length - 1 && this.state.allowMove) {
-          this.state.items = moveItem(this.state.items, from, to);
-          this.state.assistiveText = ASSISTIVE_TEXT.moving(
+        if (to <= this.state.items.length - 1 && this.state.reorderMode) {
+          this.state.items = move(from, to, this.state.items);
+          this.state.assistiveText = ASSISTIVE_TEXT.moved(
             this.state.items,
             from,
             to
@@ -95,31 +100,21 @@ export class DragAndDropUl extends ReactiveElement {
         }
         break;
       case 'Space':
-        this.state.allowMove = !this.state.allowMove;
-        if (this.state.allowMove) {
-          this.state.assistiveText = ASSISTIVE_TEXT.enabled(
-            this.state.items,
-            to
-          );
+        this.state.reorderMode = !this.state.reorderMode;
+        if (this.state.reorderMode) {
+          this.state.assistiveText = ASSISTIVE_TEXT.enabled;
         } else {
-          this.state.assistiveText = ASSISTIVE_TEXT.finished(
-            this.state.items,
-            to
-          );
+          this.state.assistiveText = ASSISTIVE_TEXT.disabled;
         }
         requestAnimationFrame(() => {
           this.getElementFromPosition(to).focus();
         });
         break;
       default:
-        this.state.allowMove = false;
-        if (/^Moving item/.test(this.state.assistiveText)) {
-          this.state.assistiveText = ASSISTIVE_TEXT.finished(
-            this.state.items,
-            to
-          );
-        } else {
-          this.state.assistiveText = ASSISTIVE_TEXT.initial;
+        const prevReorderMode = this.state.reorderMode;
+        this.state.reorderMode = false;
+        if (prevReorderMode) {
+          this.state.assistiveText = ASSISTIVE_TEXT.disabled;
         }
     }
   };
@@ -133,22 +128,27 @@ export class DragAndDropUl extends ReactiveElement {
           background-color: gray;
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 2rem;
           list-style: none;
           margin: 0;
-          padding: 1.5rem;
+          padding: 2rem;
         }
 
         li {
           color: white;
+          font-size: 3rem;
+          padding: 2rem;
+        }
+
+        li:focus {
+          outline: 3px solid white;
         }
       </style>
       <span role="alert" aria-live="assertive" sr-only
         >${this.state.assistiveText}</span
       >
       <span id="drag-and-drop-instructions" sr-only
-        >Press spacebar to move focused item up or down with arrow keys. To
-        disable arrow keys, press spacebar again.</span
+        >Press spacebar to reorder items with up and down arrow keys.</span
       >
       <ul role="listbox">
         ${this.state.items.map(
@@ -162,6 +162,8 @@ export class DragAndDropUl extends ReactiveElement {
             @dragstart="${this.handleDragStart.bind(this)}"
             @dragend="${this.handleDragEnd.bind(this)}"
             @dragover="${this.handleDragOver.bind(this)}"
+            @dragenter="${this.handleDragEnter.bind(this)}"
+            @dragleave="${this.handleDragLeave.bind(this)}"
             @drop="${this.handleDrop.bind(this)}"
           >
             ${item} box
