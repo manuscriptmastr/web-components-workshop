@@ -31,14 +31,16 @@ export class DragAndDropUl extends ReactiveElement {
     ];
 
   handleDragStart = (event) => {
+    this.state.reorderMode = true;
     const position = this.getPositionFromElement(event.target);
     event.target.style.cursor = 'move';
     event.dataTransfer.setData('text/plain', position);
   };
 
   handleDragEnd = (event) => {
-    event.target.style.cursor = 'initial';
-    event.target.style.filter = 'initial';
+    this.state.reorderMode = false;
+    event.target.style.cursor = null;
+    event.target.style.filter = null;
   };
 
   handleDragOver = (event) => {
@@ -47,11 +49,11 @@ export class DragAndDropUl extends ReactiveElement {
   };
 
   handleDragEnter = (event) => {
-    event.target.style.filter = 'brightness(50%)';
+    event.target.style.filter = 'brightness(90%)';
   };
 
   handleDragLeave = (event) => {
-    event.target.style.filter = 'initial';
+    event.target.style.filter = null;
   };
 
   handleDrop = (event) => {
@@ -65,57 +67,48 @@ export class DragAndDropUl extends ReactiveElement {
   };
 
   handleKeyUp = (event) => {
-    let from;
-    let to = this.getPositionFromElement(event.target);
+    const from = this.getPositionFromElement(event.target);
+    let to = from;
 
-    switch (event.code) {
-      case 'ArrowUp':
-        from = this.getPositionFromElement(event.target);
-        to = from - 1;
-        if (to >= 0 && this.state.reorderMode) {
-          this.state.items = move(from, to, this.state.items);
-          this.state.assistiveText = ASSISTIVE_TEXT.moved(
-            this.state.items,
-            from,
-            to
-          );
-          requestAnimationFrame(() => {
-            this.getElementFromPosition(to).focus();
-          });
-        }
-        break;
-      case 'ArrowDown':
-        from = this.getPositionFromElement(event.target);
-        to = from + 1;
-        if (to <= this.state.items.length - 1 && this.state.reorderMode) {
-          this.state.items = move(from, to, this.state.items);
-          this.state.assistiveText = ASSISTIVE_TEXT.moved(
-            this.state.items,
-            from,
-            to
-          );
-          requestAnimationFrame(() => {
-            this.getElementFromPosition(to).focus();
-          });
-        }
-        break;
-      case 'Space':
-        this.state.reorderMode = !this.state.reorderMode;
-        if (this.state.reorderMode) {
-          this.state.assistiveText = ASSISTIVE_TEXT.enabled;
-        } else {
-          this.state.assistiveText = ASSISTIVE_TEXT.disabled;
-        }
-        requestAnimationFrame(() => {
-          this.getElementFromPosition(to).focus();
-        });
-        break;
-      default:
-        const prevReorderMode = this.state.reorderMode;
-        this.state.reorderMode = false;
-        if (prevReorderMode) {
-          this.state.assistiveText = ASSISTIVE_TEXT.disabled;
-        }
+    if (this.state.items.length > 1) {
+      switch (event.code) {
+        case 'Space':
+          this.state.reorderMode = !this.state.reorderMode;
+          if (this.state.reorderMode) {
+            this.state.assistiveText = ASSISTIVE_TEXT.enabled;
+          } else {
+            this.state.assistiveText = ASSISTIVE_TEXT.disabled;
+          }
+          break;
+        case 'ArrowUp':
+          if (from > 0 && this.state.reorderMode) {
+            to = from - 1;
+            this.state.items = move(from, to, this.state.items);
+            this.state.assistiveText = ASSISTIVE_TEXT.moved(
+              this.state.items,
+              from,
+              to
+            );
+            requestAnimationFrame(() => {
+              this.getElementFromPosition(to).focus();
+            });
+          }
+          break;
+        case 'ArrowDown':
+          if (from < this.state.items.length - 1 && this.state.reorderMode) {
+            to = from + 1;
+            this.state.items = move(from, to, this.state.items);
+            this.state.assistiveText = ASSISTIVE_TEXT.moved(
+              this.state.items,
+              from,
+              to
+            );
+            requestAnimationFrame(() => {
+              this.getElementFromPosition(to).focus();
+            });
+          }
+          break;
+      }
     }
   };
 
@@ -125,23 +118,30 @@ export class DragAndDropUl extends ReactiveElement {
         @import 'screen-reader.css';
 
         ul {
-          background-color: gray;
           display: flex;
+          background-color: gray;
           flex-direction: column;
-          gap: 2rem;
+          gap: 1rem;
           list-style: none;
           margin: 0;
           padding: 2rem;
         }
 
         li {
+          background-color: var(--bg-color, darkgray);
+
           color: white;
           font-size: 3rem;
           padding: 2rem;
         }
 
-        li:focus {
-          outline: 3px solid white;
+        [tabindex]:focus,
+        [tabindex]:focus-visible {
+          outline: 5px solid white;
+        }
+
+        ul.reorder-mode li:not(:focus, :focus-visible) {
+          filter: brightness(50%);
         }
       </style>
       <span role="alert" aria-live="assertive" sr-only
@@ -150,24 +150,27 @@ export class DragAndDropUl extends ReactiveElement {
       <span id="drag-and-drop-instructions" sr-only
         >Press spacebar to reorder items with up and down arrow keys.</span
       >
-      <ul role="listbox">
+      <ul
+        role="listbox"
+        class="${this.state.reorderMode ? 'reorder-mode' : ''}"
+      >
         ${this.state.items.map(
-          (item) => html`<li
-            aria-describedby="drag-and-drop-instructions"
-            role="option"
-            tabindex="0"
-            style="background-color: ${item}"
-            draggable="true"
-            @keyup="${this.handleKeyUp.bind(this)}"
-            @dragstart="${this.handleDragStart.bind(this)}"
-            @dragend="${this.handleDragEnd.bind(this)}"
-            @dragover="${this.handleDragOver.bind(this)}"
-            @dragenter="${this.handleDragEnter.bind(this)}"
-            @dragleave="${this.handleDragLeave.bind(this)}"
-            @drop="${this.handleDrop.bind(this)}"
-          >
-            ${item} box
-          </li>`
+          (item) =>
+            html`<li
+              role="option"
+              draggable="true"
+              tabindex="0"
+              style="--bg-color: ${item}"
+              @keyup="${this.handleKeyUp.bind(this)}"
+              @dragstart="${this.handleDragStart.bind(this)}"
+              @dragend="${this.handleDragEnd.bind(this)}"
+              @dragover="${this.handleDragOver.bind(this)}"
+              @dragenter="${this.handleDragEnter.bind(this)}"
+              @dragleave="${this.handleDragLeave.bind(this)}"
+              @drop="${this.handleDrop.bind(this)}"
+            >
+              ${item}
+            </li>`
         )}
       </ul>
     `;
