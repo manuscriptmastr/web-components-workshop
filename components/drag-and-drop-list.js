@@ -7,7 +7,7 @@ const ASSISTIVE_TEXT = {
   enabled:
     'Entering reorder mode. Use up and down arrow keys to move item, then press spacebar to exit.',
   moved: (items, from, to) =>
-    `Moved item ${from + 1} of ${items.length} to position ${to + 1} of ${
+    `Moved item ${from + 1} of ${items.length} to ${to + 1} of ${
       items.length
     }.`,
   disabled: 'Exited reorder mode.',
@@ -61,54 +61,46 @@ export class DragAndDropUl extends ReactiveElement {
     const from = parseInt(event.dataTransfer.getData('text/plain'), 10);
     const to = this.getPositionFromElement(event.target);
     this.state.items = move(from, to, this.state.items);
-    requestAnimationFrame(() => {
-      this.getElementFromPosition(to).focus();
-    });
+    this.getElementFromPosition(to).focus();
   };
 
   handleKeyUp = (event) => {
     const from = this.getPositionFromElement(event.target);
     let to = from;
 
-    if (this.state.items.length > 1) {
-      switch (event.code) {
-        case 'Space':
-          this.state.reorderMode = !this.state.reorderMode;
-          if (this.state.reorderMode) {
-            this.state.assistiveText = ASSISTIVE_TEXT.enabled;
-          } else {
-            this.state.assistiveText = ASSISTIVE_TEXT.disabled;
-          }
-          break;
-        case 'ArrowUp':
-          if (from > 0 && this.state.reorderMode) {
-            to = from - 1;
-            this.state.items = move(from, to, this.state.items);
-            this.state.assistiveText = ASSISTIVE_TEXT.moved(
-              this.state.items,
-              from,
-              to
-            );
-            requestAnimationFrame(() => {
-              this.getElementFromPosition(to).focus();
-            });
-          }
-          break;
-        case 'ArrowDown':
-          if (from < this.state.items.length - 1 && this.state.reorderMode) {
-            to = from + 1;
-            this.state.items = move(from, to, this.state.items);
-            this.state.assistiveText = ASSISTIVE_TEXT.moved(
-              this.state.items,
-              from,
-              to
-            );
-            requestAnimationFrame(() => {
-              this.getElementFromPosition(to).focus();
-            });
-          }
-          break;
-      }
+    switch (event.code) {
+      case 'Space':
+        this.state.reorderMode = !this.state.reorderMode;
+        if (this.state.reorderMode) {
+          this.state.assistiveText = ASSISTIVE_TEXT.enabled;
+        } else {
+          this.state.assistiveText = ASSISTIVE_TEXT.disabled;
+        }
+        break;
+      case 'ArrowUp':
+        if (from > 0 && this.state.reorderMode) {
+          to = from - 1;
+          this.state.items = move(from, to, this.state.items);
+          this.state.assistiveText = ASSISTIVE_TEXT.moved(
+            this.state.items,
+            from,
+            to
+          );
+          this.getElementFromPosition(to).focus();
+        }
+        break;
+      case 'ArrowDown':
+        if (from < this.state.items.length - 1 && this.state.reorderMode) {
+          to = from + 1;
+          this.state.items = move(from, to, this.state.items);
+          this.state.assistiveText = ASSISTIVE_TEXT.moved(
+            this.state.items,
+            from,
+            to
+          );
+          this.getElementFromPosition(to).focus();
+        }
+        break;
     }
   };
 
@@ -118,8 +110,8 @@ export class DragAndDropUl extends ReactiveElement {
         @import 'screen-reader.css';
 
         ul {
-          display: flex;
           background-color: gray;
+          display: flex;
           flex-direction: column;
           gap: 1rem;
           list-style: none;
@@ -128,15 +120,14 @@ export class DragAndDropUl extends ReactiveElement {
         }
 
         li {
-          background-color: var(--bg-color, darkgray);
-
+          background-color: var(--bg-color);
           color: white;
           font-size: 3rem;
           padding: 2rem;
         }
 
-        [tabindex]:focus,
-        [tabindex]:focus-visible {
+        li:focus,
+        li:focus-visible {
           outline: 5px solid white;
         }
 
