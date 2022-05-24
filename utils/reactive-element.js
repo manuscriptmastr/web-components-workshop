@@ -28,6 +28,7 @@ export class ReactiveElement extends HTMLElement {
 
   connectedCallback() {
     this[connected] = true;
+    customDirectives.connect(this.shadowRoot);
     Object.entries(this.state).forEach(([key, value]) =>
       reactiveProperty(this.state, key, value, this.update.bind(this))
     );
@@ -41,6 +42,7 @@ export class ReactiveElement extends HTMLElement {
   }
 
   disconnectedCallback() {
+    customDirectives.disconnect(this.shadowRoot);
     this[connected] = false;
   }
 }

@@ -1,4 +1,15 @@
+@import 'base.css';
+
 :root {
   --color-primary: blue;
   --color-secondary: green;
+}
+
+html,
+body,
+main {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
