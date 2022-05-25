@@ -12,15 +12,15 @@ export const GalleryLi = reactiveElement(
           filter: brightness(0.5);
         }
 
-        :host(gallery-li[resize='true']) {
+        :host(gallery-li[resize]) {
           padding: 3rem;
         }
 
-        :host(gallery-li[below-threshold]) {
+        :host(gallery-li[resize-min]) {
           background-color: red;
         }
 
-        :host(gallery-li[above-threshold]) {
+        :host(gallery-li[resize-max]) {
           background-color: green;
         }
 

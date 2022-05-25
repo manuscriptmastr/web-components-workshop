@@ -1,4 +1,4 @@
-import './directives/index.js';
+import './utils/directives.js';
 import './directives/resize.js';
 import './components/app-gallery.js';
 import './components/form-input.js';

@@ -1,7 +1,7 @@
 const ro = new ResizeObserver((entries) => {
   for (const { target, contentRect } of entries) {
     const test = document.createElement('div');
-    test.style.width = target.getAttribute('threshold');
+    test.style.width = target.getAttribute('resize');
     target.appendChild(test);
     const minToPixels = parseFloat(getComputedStyle(test).width);
     target.removeChild(test);
@@ -9,11 +9,11 @@ const ro = new ResizeObserver((entries) => {
     const isWide = contentRect.width > minToPixels;
     // toggle the class conditionally
     if (isWide) {
-      target.setAttribute('above-threshold', '');
-      target.removeAttribute('below-threshold');
+      target.setAttribute('resize-max', '');
+      target.removeAttribute('resize-min');
     } else {
-      target.removeAttribute('above-threshold');
-      target.setAttribute('below-threshold', '');
+      target.removeAttribute('resize-max');
+      target.setAttribute('resize-min', '');
     }
   }
 });
@@ -21,9 +21,7 @@ const ro = new ResizeObserver((entries) => {
 const ResizeDirective = {
   connected: ro.observe.bind(ro),
   disconnected: (element) => {
-    ['above-threshold', 'below-threshold'].forEach(
-      element.removeAttribute.bind(element)
-    );
+    ['resize-max', 'resize-min'].forEach(element.removeAttribute.bind(element));
     ro.unobserve(element);
   },
 };

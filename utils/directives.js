@@ -1,7 +1,7 @@
 const directives = [];
 
 const shouldMountDirective = (attrName, element) =>
-  ['true', ''].includes(element.getAttribute(attrName));
+  element.getAttribute(attrName) !== null;
 
 const createDirective = (attrName, { connected, disconnected }) =>
   new MutationObserver((mutations) =>
