@@ -13,15 +13,19 @@ export const GalleryLi = reactiveElement(
         }
 
         :host(gallery-li[resize]) {
-          padding: 3rem;
+          z-index: 1;
         }
 
-        :host(gallery-li[resize-min]) {
-          background-color: red;
+        :host(gallery-li[resize]) li {
+          filter: none;
         }
 
-        :host(gallery-li[resize-max]) {
-          background-color: green;
+        :host(gallery-li[resize-min]) li {
+          outline: 5px solid red;
+        }
+
+        :host(gallery-li[resize-max]) li {
+          outline: 5px solid green;
         }
 
         img {

@@ -8,12 +8,17 @@ export const Gallery = reactiveElement([], () => {
 
   return html`
     <gallery-ul
-      >${[0, 1, 2, 3].map(
-        (num) =>
+      >${[
+        'https://images.unsplash.com/photo-1606042166681-f26628260543?w=600',
+        'https://images.unsplash.com/photo-1521494994093-d4fe5669b500?w=600',
+        'https://images.unsplash.com/photo-1555421689-43cad7100750?w=600',
+        'https://images.unsplash.com/photo-1592151450113-bdf5982da169?w=600',
+      ].map(
+        (imageUrl, index) =>
           html`<gallery-li
-            resize="${ifDefined(activeIndex === num ? '18rem' : undefined)}"
-            @click="${() => setActiveIndex(num)}"
-            imagesrc="https://images.unsplash.com/photo-1652957465310-a5c2cfb1d844?w=600"
+            resize="${ifDefined(activeIndex === index ? '23rem' : undefined)}"
+            @click="${() => setActiveIndex(index)}"
+            imagesrc="${imageUrl}"
             imagealt="Digital Nomad"
           ></gallery-li>`
       )}</gallery-ul
