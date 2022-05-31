@@ -1,16 +1,17 @@
 import { html } from 'lit-html';
-import { curry } from 'ramda';
 import { reactiveElement } from '../utils/reactive-element.js';
-
-const handleInput = curry((host, event) => {
-  event.stopPropagation();
-  host.dispatchEvent(new CustomEvent('input', { detail: event.target.value }));
-});
 
 export const FormInput = reactiveElement(
   ['label', 'value'],
   ({ label, value, host }) => {
     const id = label.toLowerCase();
+    const handleInput = (event) => {
+      event.stopPropagation();
+      host.dispatchEvent(
+        new CustomEvent('input', { detail: event.target.value })
+      );
+    };
+
     return html`
       <style>
         label {
@@ -22,7 +23,7 @@ export const FormInput = reactiveElement(
         }
       </style>
       <label for="${id}">${label}</label>
-      <input value="${value}" id="${id}" @input="${handleInput(host)}" />
+      <input value="${value}" id="${id}" @input="${handleInput}" />
     `;
   }
 );

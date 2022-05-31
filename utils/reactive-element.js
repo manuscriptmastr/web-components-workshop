@@ -17,7 +17,9 @@ export class ReactiveElement extends HTMLElement {
   state = {};
 
   update() {
-    render(this.render(), this.shadowRoot);
+    if (this.isConnected) {
+      render(this.render(), this.shadowRoot);
+    }
   }
 
   connectedCallback() {
@@ -40,10 +42,9 @@ export const reactiveElement = (props, render) =>
 
     render() {
       let count = -1;
-
       const useState = (initialValue) => {
         count++;
-        const key = `${this.tagName.toLowerCase()}:hook:${count}`;
+        const key = count;
         if (!this.state.hasOwnProperty(key)) {
           reactiveProperty(
             this.state,

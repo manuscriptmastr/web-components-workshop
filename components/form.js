@@ -3,7 +3,8 @@ import { reactiveElement } from '../utils/reactive-element.js';
 
 export const Form = reactiveElement([], ({ useState }) => {
   const [origin, setOrigin] = useState('Worka, Ethiopia');
-  const handleInput = ({ detail }) => setOrigin(detail);
+  const handleInput = (event) => setOrigin(event.detail);
+
   return html`
     <form>
       <form-input
