@@ -2,8 +2,6 @@ import { render } from 'lit-html';
 import { Hooks } from './hooks.js';
 import { reactiveProperty, reflectiveProperty } from './reactive-property.js';
 
-const connected = Symbol('connected');
-
 export class ReactiveElement extends HTMLElement {
   static get observedAttributes() {
     return this.properties ?? [];
@@ -18,16 +16,14 @@ export class ReactiveElement extends HTMLElement {
   }
 
   state = {};
-  [connected] = false;
 
   update() {
-    if (this[connected]) {
+    if (this.isConnected) {
       render(this.render(), this.shadowRoot);
     }
   }
 
   connectedCallback() {
-    this[connected] = true;
     Object.entries(this.state).forEach(([key, value]) =>
       reactiveProperty(this.state, key, value, this.update.bind(this))
     );
@@ -40,9 +36,7 @@ export class ReactiveElement extends HTMLElement {
     }
   }
 
-  disconnectedCallback() {
-    this[connected] = false;
-  }
+  disconnectedCallback() {}
 }
 
 export const reactiveElement = (props, render) =>

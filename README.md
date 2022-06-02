@@ -11,4 +11,5 @@ serve .
 ## Concepts
 
 - Refactor: `Hooks`
+- Bugfix: render after `isConnected`
 - Challenge: side effects with `useEffect(fn, deps?)`
