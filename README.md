@@ -11,5 +11,4 @@ serve .
 ## Concepts
 
 - `reactiveElement(props, render)`
-- Bugfix: render after `isConnected`
 - `useState(initialValue)`

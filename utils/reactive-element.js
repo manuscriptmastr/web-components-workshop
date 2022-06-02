@@ -17,9 +17,7 @@ export class ReactiveElement extends HTMLElement {
   state = {};
 
   update() {
-    if (this.isConnected) {
-      render(this.render(), this.shadowRoot);
-    }
+    render(this.render(), this.shadowRoot);
   }
 
   connectedCallback() {
