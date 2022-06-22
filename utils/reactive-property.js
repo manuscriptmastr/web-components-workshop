@@ -23,6 +23,7 @@ export const reflectiveProperty = (object, key) => {
     get() {
       return object.getAttribute(key);
     },
+    configurable: true,
     enumerable: true,
   });
 };

@@ -1,14 +1,11 @@
 import { html } from 'lit-html';
-import { useEffect, useState } from '../utils/hooks.js';
+import { useState } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 export const Form = reactiveElement([], () => {
   const [origin, setOrigin] = useState('Worka, Ethiopia');
   const [roaster, setRoaster] = useState('Madcap Coffee Company');
-  useEffect(() => {
-    console.log('<app-form> mounting effect');
-    return () => console.log('<app-form> unmounting effect');
-  }, [origin]);
+  const [zipcode, setZipcode] = useState('12345');
   return html`
     <form>
       <form-input
@@ -20,6 +17,12 @@ export const Form = reactiveElement([], () => {
         label="Roaster"
         value="${roaster}"
         @input="${(event) => setRoaster(event.detail)}"
+      ></form-input>
+      <form-input
+        type="zipcode"
+        label="Zip Code"
+        value="${zipcode}"
+        @input="${(event) => setZipcode(event.detail)}"
       ></form-input>
     </form>
   `;

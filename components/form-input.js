@@ -1,20 +1,52 @@
 import { html } from 'lit-html';
-import { useEffect } from '../utils/hooks.js';
-import { reactiveElement } from '../utils/reactive-element.js';
+import { curry } from 'ramda';
+import { ReactiveElement } from '../utils/reactive-element.js';
 
-const handleInput = (event, host) => {
-  event.stopPropagation();
-  host.dispatchEvent(new CustomEvent('input', { detail: event.target.value }));
+const FORMAT = {
+  max: curry((len, str) => str.slice(0, len)),
+  zipcode: (str) => str.replaceAll(/[^\d]/g, '').slice(0, 5),
 };
 
-export const FormInput = reactiveElement(
-  ['label', 'value'],
-  ({ label, value, host }) => {
-    useEffect(() => {
-      console.log('<form-input> mounting effect');
-      return () => console.log('<form-input> unmounting effect');
+const VALIDATION = {
+  max: curry((len, str) => str.length <= len),
+  min: curry((len, str) => str.length >= len),
+  zipcode: (str) => /^\d{5}$/.test(str),
+};
+
+export class FormInput extends ReactiveElement {
+  static properties = ['label', 'value', 'type', 'min', 'max'];
+
+  constructor() {
+    super();
+    const format = FORMAT[this.type] ?? ((i) => i);
+    Object.defineProperty(this, 'value', {
+      get() {
+        return format(this.getAttribute('value'));
+      },
+      set(value) {
+        this.dispatchEvent(new CustomEvent('input', { detail: format(value) }));
+      },
     });
-    const id = label.toLowerCase();
+  }
+
+  get id() {
+    return this.label.toLowerCase();
+  }
+
+  format(value) {
+    return (FORMAT[this.type] ?? ((i) => i))(value);
+  }
+
+  handleInput(event) {
+    event.stopPropagation();
+    const cursorStart = event.target.selectionStart;
+    const cursorEnd = event.target.selectionEnd;
+    event.target.value = this.format(event.target.value);
+    event.target.setSelectionRange(cursorStart, cursorEnd);
+    this.value = event.target.value;
+  }
+
+  render() {
     return html`
       <style>
         label {
@@ -25,14 +57,14 @@ export const FormInput = reactiveElement(
           color: var(--color-secondary);
         }
       </style>
-      <label for="${id}">${label}</label>
+      <label for="${this.id}">${this.label}</label>
       <input
-        value="${value}"
-        id="${id}"
-        @input="${(event) => handleInput(event, host)}"
+        value="${this.value}"
+        id="${this.id}"
+        @input="${this.handleInput.bind(this)}"
       />
     `;
   }
-);
+}
 
 customElements.define('form-input', FormInput);
