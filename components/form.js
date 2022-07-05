@@ -1,14 +1,12 @@
 import { html } from 'lit-html';
-import { useEffect, useState } from '../utils/hooks.js';
+import { useContext } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 export const Form = reactiveElement([], () => {
-  const [origin, setOrigin] = useState('Worka, Ethiopia');
-  const [roaster, setRoaster] = useState('Madcap Coffee Company');
-  useEffect(() => {
-    console.log('<app-form> mounting effect');
-    return () => console.log('<app-form> unmounting effect');
-  }, [origin]);
+  const [{ origin, roaster }, setForm] = useContext('form-provider');
+  const setOrigin = (origin) => setForm({ origin, roaster });
+  const setRoaster = (roaster) => setForm({ origin, roaster });
+
   return html`
     <form>
       <form-input

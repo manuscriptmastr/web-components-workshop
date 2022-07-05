@@ -81,3 +81,15 @@ export const useEffect = (fn, deps) => {
     }, 0);
   }
 };
+
+export const useContext = (tagName) => {
+  const element = Hooks.currentElement;
+  const provider = element.closest(tagName);
+  return [
+    provider.state,
+    (newState) =>
+      Object.entries(newState).forEach(
+        ([key, value]) => (provider.state[key] = value)
+      ),
+  ];
+};
