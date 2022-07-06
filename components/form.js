@@ -1,10 +1,11 @@
 import { html } from 'lit-html';
-import { useEffect, useState } from '../utils/hooks.js';
+import { connect, update } from '../store/index.js';
+import { useEffect } from '../utils/hooks.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
-export const Form = reactiveElement([], () => {
-  const [origin, setOrigin] = useState('Worka, Ethiopia');
-  const [roaster, setRoaster] = useState('Madcap Coffee Company');
+export const Form = reactiveElement([], ({ origin, roaster }) => {
+  const setOrigin = (origin) => update((state) => ({ ...state, origin }));
+  const setRoaster = (roaster) => update((state) => ({ ...state, roaster }));
   useEffect(() => {
     console.log('<app-form> mounting effect');
     return () => console.log('<app-form> unmounting effect');
@@ -25,4 +26,7 @@ export const Form = reactiveElement([], () => {
   `;
 });
 
-customElements.define('app-form', Form);
+customElements.define(
+  'app-form',
+  connect(({ origin, roaster }) => ({ origin, roaster }), Form)
+);
