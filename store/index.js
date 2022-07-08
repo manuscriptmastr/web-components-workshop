@@ -1,10 +1,19 @@
 import { createConnect, createStore } from '../utils/store.js';
 
-export const store = createStore({
+const INITIAL_STATE = {
   origin: 'Worka, Ethiopia',
   roaster: 'Madcap Coffee Company',
-});
+};
 
-export const { update } = store;
+const reducer = (state, { type, payload }) => {
+  switch (type) {
+    case 'UPDATE_FORM':
+      return { ...state, ...payload };
+    default:
+      return state;
+  }
+};
+
+export const store = createStore(reducer, INITIAL_STATE);
 
 export const connect = createConnect(store);

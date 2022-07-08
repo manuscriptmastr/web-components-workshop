@@ -5,15 +5,8 @@ import { ReactiveElement } from '../utils/reactive-element.js';
 export class Store extends ReactiveElement {
   connectedCallback() {
     super.connectedCallback();
-    this.shadowRoot.addEventListener(
-      'store',
-      ({ detail: { type, payload } }) => {
-        switch (type) {
-          case 'UPDATE_FORM':
-            store.update((state) => ({ ...state, ...payload }));
-            break;
-        }
-      }
+    this.shadowRoot.addEventListener('store', ({ detail: action }) =>
+      store.dispatch(action)
     );
   }
 

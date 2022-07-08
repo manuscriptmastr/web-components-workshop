@@ -1,6 +1,6 @@
 import { curry } from 'ramda';
 
-export const createStore = (initialState) => {
+export const createStore = (reducer, initialState) => {
   let state = initialState;
   const subscribers = new Set();
 
@@ -10,10 +10,9 @@ export const createStore = (initialState) => {
       subscribers.add(fn);
       return () => subscribers.delete(fn);
     },
-    unsubscribe: Symbol('store.unsubscribe'),
-    update: (fnOrValue) => {
-      state = typeof fnOrValue === 'function' ? fnOrValue(state) : fnOrValue;
-      subscribers.forEach((fn) => fn(state));
+    dispatch: (action) => {
+      state = reducer(state, action);
+      subscribers.forEach((fn) => fn());
     },
   };
 };
@@ -35,15 +34,15 @@ export const createConnect = curry(
       connectedCallback() {
         this.updateProperties(store.getState());
         super.connectedCallback();
-        this[store.unsubscribe] = store.subscribe((state) => {
-          this.updateProperties(state);
+        this.unsubscribeFromStore = store.subscribe(() => {
+          this.updateProperties(store.getState());
           this.update();
         });
       }
 
       disconnectedCallback() {
         super.disconnectedCallback();
-        this[store.unsubscribe]();
+        this.unsubscribeFromStore();
       }
     }
 );
