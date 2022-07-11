@@ -9,3 +9,7 @@ serve .
 ```
 
 ## Concepts
+
+- `createStore(reducer, initialState)`
+- Refactor: `createConnect(store, mapStateToProps, component)`
+- Refactor: `dispatchEvent('store', event)` and `<app-store></app-store>`
