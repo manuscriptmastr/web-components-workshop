@@ -1,4 +1,4 @@
-# 1.6: A Tree Builds a Web Component (The Hooks Edition)
+# 2.1: A Tree Gets Some Data (The Vanilla Edition)
 
 ## :point_down: Start Here
 
@@ -9,7 +9,3 @@ serve .
 ```
 
 ## Concepts
-
-- Refactor: `Hooks`
-- Bugfix: render after `isConnected`
-- Challenge: side effects with `useEffect(fn, deps?)`
