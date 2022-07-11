@@ -5,8 +5,8 @@ import { ReactiveElement } from '../utils/reactive-element.js';
 export class Store extends ReactiveElement {
   connectedCallback() {
     super.connectedCallback();
-    this.shadowRoot.addEventListener('store', ({ detail: action }) =>
-      store.dispatch(action)
+    this.shadowRoot.addEventListener('store', ({ detail }) =>
+      store.dispatch(detail)
     );
   }
 

@@ -18,26 +18,18 @@ export const createStore = (reducer, initialState) => {
 };
 
 export const createConnect = curry(
-  (store, mapStateToProps, superclass) =>
-    class extends superclass {
-      updateProperties(state) {
-        Object.entries(mapStateToProps(state)).forEach(([key, value]) =>
+  (store, mapStateToProps, clazz) =>
+    class extends clazz {
+      connectedCallback() {
+        Object.keys(mapStateToProps(store.getState())).forEach((key) =>
           Object.defineProperty(this, key, {
-            value,
-            enumerable: true,
-            configurable: true,
-            writable: false,
+            get() {
+              return mapStateToProps(store.getState())[key];
+            },
           })
         );
-      }
-
-      connectedCallback() {
-        this.updateProperties(store.getState());
         super.connectedCallback();
-        this.unsubscribeFromStore = store.subscribe(() => {
-          this.updateProperties(store.getState());
-          this.update();
-        });
+        this.unsubscribeFromStore = store.subscribe(this.update.bind(this));
       }
 
       disconnectedCallback() {

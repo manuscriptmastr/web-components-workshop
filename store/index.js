@@ -15,5 +15,4 @@ const reducer = (state, { type, payload }) => {
 };
 
 export const store = createStore(reducer, INITIAL_STATE);
-
 export const connect = createConnect(store);
