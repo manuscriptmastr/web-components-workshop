@@ -1,12 +1,15 @@
 import { html } from 'lit-html';
-import { store } from '../store/index.js';
+import { formStore, settingsStore } from '../store/observable.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 export class Store extends ReactiveElement {
   connectedCallback() {
     super.connectedCallback();
-    this.shadowRoot.addEventListener('store', ({ detail }) =>
-      store.dispatch(detail)
+    this.shadowRoot.addEventListener('store:form', ({ detail }) =>
+      formStore.next(detail)
+    );
+    this.shadowRoot.addEventListener('store:settings', ({ detail }) =>
+      settingsStore.next(detail)
     );
   }
 

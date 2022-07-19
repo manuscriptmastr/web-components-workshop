@@ -1,4 +1,4 @@
-import { createConnect, createStore } from '../utils/store.js';
+import { createConnect, createStore } from '../utils/redux.js';
 
 const INITIAL_STATE = {
   origin: 'Worka, Ethiopia',

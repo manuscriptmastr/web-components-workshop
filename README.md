@@ -1,4 +1,4 @@
-# 2.1: A Tree Gets Some Data (The Vanilla Edition)
+# 2.2: A Tree Gets Some Data (The Observable Edition)
 
 ## :point_down: Start Here
 
@@ -9,7 +9,3 @@ serve .
 ```
 
 ## Concepts
-
-- `createStore(reducer, initialState)`
-- Refactor: `createConnect(store, mapStateToProps, component)`
-- Refactor: `dispatchEvent('store', event)` and `<app-store></app-store>`

@@ -1,5 +1,7 @@
 import { html } from 'lit-html';
+import { settingsStore } from '../store/observable.js';
 import { useEffect } from '../utils/hooks.js';
+import { connect } from '../utils/observable.js';
 import { reactiveElement } from '../utils/reactive-element.js';
 
 const handleInput = (event, host) => {
@@ -9,7 +11,7 @@ const handleInput = (event, host) => {
 
 export const FormInput = reactiveElement(
   ['label', 'value'],
-  ({ label, value, host }) => {
+  ({ label, value, inputColor, labelColor, host }) => {
     useEffect(() => {
       console.log('<form-input> mounting effect');
       return () => console.log('<form-input> unmounting effect');
@@ -18,11 +20,11 @@ export const FormInput = reactiveElement(
     return html`
       <style>
         label {
-          color: var(--color-primary);
+          color: ${labelColor};
         }
 
         input {
-          color: var(--color-secondary);
+          color: ${inputColor};
         }
       </style>
       <label for="${id}">${label}</label>
@@ -35,4 +37,11 @@ export const FormInput = reactiveElement(
   }
 );
 
-customElements.define('form-input', FormInput);
+customElements.define(
+  'form-input',
+  connect(
+    settingsStore,
+    ({ inputColor, labelColor }) => ({ inputColor, labelColor }),
+    FormInput
+  )
+);
