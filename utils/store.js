@@ -1,22 +1,5 @@
 import { curry } from 'ramda';
 
-export const createStore = (reducer, initialState) => {
-  let state = initialState;
-  const subscribers = new Set();
-
-  return {
-    getState: () => state,
-    subscribe: (fn) => {
-      subscribers.add(fn);
-      return () => subscribers.delete(fn);
-    },
-    dispatch: (action) => {
-      state = reducer(state, action);
-      subscribers.forEach((fn) => fn());
-    },
-  };
-};
-
 export const createConnect = curry(
   (store, mapStateToProps, clazz) =>
     class extends clazz {

@@ -1,4 +1,6 @@
-import { createConnect, createStore } from '../utils/store.js';
+import 'https://cdn.jsdelivr.net/npm/redux@4.2.0/dist/redux.min.js';
+import { createConnect } from '../utils/store.js';
+const { createStore } = window.Redux;
 
 const INITIAL_STATE = {
   origin: 'Worka, Ethiopia',
