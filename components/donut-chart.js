@@ -17,7 +17,7 @@ export class DonutChart extends ReactiveElement {
   }
 
   get #gap() {
-    return parseInt(this.gap ?? '1', 10);
+    return parseInt(this.gap ?? '2', 10);
   }
 
   get #spacers() {
