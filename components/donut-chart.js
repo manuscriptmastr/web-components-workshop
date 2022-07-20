@@ -77,7 +77,7 @@ export class DonutChart extends ReactiveElement {
           )}
         </g>
         <text x="17" y="17" text-anchor="middle" alignment-baseline="central">
-          10
+          ${this.#segments.reduce((a, b) => a + b, 0)}
         </text>
       </svg>
     `;
