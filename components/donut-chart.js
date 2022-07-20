@@ -2,7 +2,7 @@ import { html, svg } from 'lit-html';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 export class DonutChart extends ReactiveElement {
-  static properties = ['segments', 'segment-colors'];
+  static properties = ['segments', 'segment-colors', 'gap'];
 
   get #segments() {
     const weights = this.segments
@@ -16,12 +16,16 @@ export class DonutChart extends ReactiveElement {
     return this['segment-colors'].replaceAll(/\s/g, '').split(',');
   }
 
+  get #gap() {
+    return parseInt(this.gap ?? '1', 10);
+  }
+
   get #spacers() {
     return this.#segments.length - 1;
   }
 
   get #total() {
-    return 70 - this.#spacers;
+    return 70 - this.#spacers * this.#gap;
   }
 
   get #actualSegments() {
@@ -30,7 +34,7 @@ export class DonutChart extends ReactiveElement {
     return actual.map((length, i) => ({
       color: this.#colors[i],
       length,
-      offset: actual.slice(0, i).reduce((a, b) => a + b + 1, 0),
+      offset: actual.slice(0, i).reduce((a, b) => a + b + this.#gap, 0),
     }));
   }
 
@@ -39,7 +43,6 @@ export class DonutChart extends ReactiveElement {
       <style>
         svg {
           display: inline-block;
-          height: 200px;
           width: 200px;
         }
 
@@ -50,7 +53,6 @@ export class DonutChart extends ReactiveElement {
 
         circle {
           fill: none;
-          /* Note that stroke-linecap and stroke-width must be factored in when divided up available space */
           stroke-linecap: round;
           stroke-width: 2;
         }
@@ -74,7 +76,6 @@ export class DonutChart extends ReactiveElement {
             `
           )}
         </g>
-        <!-- Centered text -->
         <text x="17" y="17" text-anchor="middle" alignment-baseline="central">
           10
         </text>
