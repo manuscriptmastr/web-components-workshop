@@ -41,8 +41,13 @@ export class DonutChart extends ReactiveElement {
   render() {
     return html`
       <style>
+        :host {
+          display: block;
+          width: fit-content;
+        }
+
         svg {
-          display: inline-block;
+          display: block;
           width: 200px;
         }
 

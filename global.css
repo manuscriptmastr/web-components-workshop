@@ -2,3 +2,7 @@
   --color-primary: blue;
   --color-secondary: green;
 }
+
+main {
+  display: flex;
+}
