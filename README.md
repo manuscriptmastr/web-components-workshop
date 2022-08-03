@@ -9,3 +9,10 @@ serve .
 ```
 
 ## Concepts
+
+- `new BehaviorSubject(initialValue)`
+- `connect(observable, mapStateToProps, component)`
+- Bugfix: `enumerable: true`
+- Refactor: `<app-store></app-store>`
+- `<app-settings></app-settings>`
+- Persistence with `persist(storage, key, observable)`

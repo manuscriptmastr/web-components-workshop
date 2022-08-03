@@ -13,13 +13,12 @@ export const connect = curry(
           })
         );
         super.connectedCallback();
-        this[`store:${observable.toString()}:subscription`] =
-          observable.subscribe(this.update.bind(this));
+        this.subscription = observable.subscribe(this.update.bind(this));
       }
 
       disconnectedCallback() {
         super.disconnectedCallback();
-        this[`store:${observable.toString()}:subscription`].unsubscribe();
+        this.subscription.unsubscribe();
       }
     }
 );
