@@ -4,20 +4,20 @@ import { connect } from '../utils/observable.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 export class Settings extends ReactiveElement {
-  setInputColor(color) {
+  setInputColor(inputColor) {
     this.dispatchEvent(
       new CustomEvent('store:settings', {
         bubbles: true,
-        detail: { inputColor: color, labelColor: this.labelColor },
+        detail: { inputColor, labelColor: this.labelColor },
       })
     );
   }
 
-  setLabelColor(color) {
+  setLabelColor(labelColor) {
     this.dispatchEvent(
       new CustomEvent('store:settings', {
         bubbles: true,
-        detail: { inputColor: this.inputColor, labelColor: color },
+        detail: { inputColor: this.inputColor, labelColor },
       })
     );
   }
@@ -40,9 +40,5 @@ export class Settings extends ReactiveElement {
 
 customElements.define(
   'app-settings',
-  connect(
-    settingsStore,
-    ({ inputColor, labelColor }) => ({ inputColor, labelColor }),
-    Settings
-  )
+  connect(settingsStore, (I) => I, Settings)
 );
