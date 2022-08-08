@@ -19,7 +19,14 @@
     "@babel/plugin-proposal-decorators": "^7.18.9",
     "@babel/preset-env": "^7.18.9",
     "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-node-resolve": "^13.3.0",
     "rollup": "^2.77.2",
     "serve": "^14.0.1"
+  },
+  "dependencies": {
+    "change-case": "^4.1.2",
+    "lit-html": "^2.2.7",
+    "ramda": "^0.28.0",
+    "rxjs": "^7.5.6"
   }
 }

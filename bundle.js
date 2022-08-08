@@ -1,7 +1,3 @@
-import { render, html } from 'lit-html';
-import { equals, curry } from 'ramda';
-import { BehaviorSubject } from 'https://unpkg.com/rxjs@7.5.5/dist/esm/internal/BehaviorSubject.js';
-
 function createMetadataMethodsForProperty(metadataMap, kind, property, decoratorFinishedRef) {
   return {
     getMetadata: function (key) {
@@ -527,8 +523,20 @@ function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
 
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
+
 function _arrayWithHoles(arr) {
   if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArray(iter) {
+  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
 }
 
 function _iterableToArrayLimit(arr, i) {
@@ -578,65 +586,12 @@ function _arrayLikeToArray(arr, len) {
   return arr2;
 }
 
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
-function _createForOfIteratorHelper(o, allowArrayLike) {
-  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-
-  if (!it) {
-    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-      if (it) o = it;
-      var i = 0;
-
-      var F = function () {};
-
-      return {
-        s: F,
-        n: function () {
-          if (i >= o.length) return {
-            done: true
-          };
-          return {
-            done: false,
-            value: o[i++]
-          };
-        },
-        e: function (e) {
-          throw e;
-        },
-        f: F
-      };
-    }
-
-    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-
-  var normalCompletion = true,
-      didErr = false,
-      err;
-  return {
-    s: function () {
-      it = it.call(o);
-    },
-    n: function () {
-      var step = it.next();
-      normalCompletion = step.done;
-      return step;
-    },
-    e: function (e) {
-      didErr = true;
-      err = e;
-    },
-    f: function () {
-      try {
-        if (!normalCompletion && it.return != null) it.return();
-      } finally {
-        if (didErr) throw err;
-      }
-    }
-  };
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 function _classPrivateFieldGet(receiver, privateMap) {
@@ -693,123 +648,620 @@ function _classPrivateFieldInitSpec(obj, privateMap, value) {
   privateMap.set(obj, value);
 }
 
-var reactiveProperty = function reactiveProperty(object, key, initialValue) {
-  var notify = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {};
-  object["_".concat(key)] = initialValue;
-  Object.defineProperty(object, key, {
-    get: function get() {
-      return object["_".concat(key)];
-    },
-    set: function set(newValue) {
-      if (object["_".concat(key)] !== newValue) {
-        object["_".concat(key)] = newValue;
-        notify();
-      }
-    }
-  });
-};
-var reflectiveProperty = function reflectiveProperty(object, key) {
-  Object.defineProperty(object, key, {
-    get: function get() {
-      return object.getAttribute(key);
-    },
-    enumerable: true
-  });
-};
+function _identity(x) {
+  return x;
+}
 
-var Hooks = new ( /*#__PURE__*/function () {
-  function _class2() {
-    _classCallCheck(this, _class2);
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var t;
 
-    _defineProperty(this, "elements", new Map());
+const i = globalThis.trustedTypes,
+      s = i ? i.createPolicy("lit-html", {
+  createHTML: t => t
+}) : void 0,
+      e = `lit$${(Math.random() + "").slice(9)}$`,
+      o = "?" + e,
+      n = `<${o}>`,
+      l = document,
+      h = (t = "") => l.createComment(t),
+      r = t => null === t || "object" != typeof t && "function" != typeof t,
+      d = Array.isArray,
+      u = t => d(t) || "function" == typeof (null == t ? void 0 : t[Symbol.iterator]),
+      c = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,
+      v = /-->/g,
+      a = />/g,
+      f = RegExp(">|[ \t\n\f\r](?:([^\\s\"'>=/]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:[^ \t\n\f\r\"'`<>=]|(\"|')|))|$)", "g"),
+      _ = /'/g,
+      g = /"/g,
+      m = /^(?:script|style|textarea|title)$/i,
+      p = t => (i, ...s) => ({
+  _$litType$: t,
+  strings: i,
+  values: s
+}),
+      $ = p(1),
+      b = Symbol.for("lit-noChange"),
+      w = Symbol.for("lit-nothing"),
+      x = new WeakMap(),
+      T = (t, i, s) => {
+  var e, o;
+  const n = null !== (e = null == s ? void 0 : s.renderBefore) && void 0 !== e ? e : i;
+  let l = n._$litPart$;
 
-    _defineProperty(this, "currentElement", void 0);
-
-    _defineProperty(this, "hookKey", undefined);
+  if (void 0 === l) {
+    const t = null !== (o = null == s ? void 0 : s.renderBefore) && void 0 !== o ? o : null;
+    n._$litPart$ = l = new N(i.insertBefore(h(), t), t, void 0, null != s ? s : {});
   }
 
-  _createClass(_class2, [{
-    key: "findOrCreateHook",
-    value: function findOrCreateHook() {
-      var initialHook = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      this.hookKey++;
-      var hooks = this.elements.get(this.currentElement);
-      var hook = Array.from(hooks).hasOwnProperty(this.hookKey) ? Array.from(hooks)[this.hookKey] : _objectSpread2(_objectSpread2({}, initialHook), {}, {
-        uid: "".concat(this.currentElement.tagName.toLowerCase(), ":hook:").concat(this.hookKey)
-      });
-      hooks.add(hook);
-      return hook;
-    }
-  }, {
-    key: "setElement",
-    value: function setElement(element) {
-      var hooks = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Set();
-      this.elements.set(element, hooks);
-    }
-  }, {
-    key: "removeElement",
-    value: function removeElement(element) {
-      var hooks = this.elements.get(element);
+  return l._$AI(t), l;
+},
+      A = l.createTreeWalker(l, 129, null, !1),
+      E = (t, i) => {
+  const o = t.length - 1,
+        l = [];
+  let h,
+      r = 2 === i ? "<svg>" : "",
+      d = c;
 
-      var _iterator = _createForOfIteratorHelper(hooks),
-          _step;
+  for (let i = 0; i < o; i++) {
+    const s = t[i];
+    let o,
+        u,
+        p = -1,
+        $ = 0;
 
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var _step$value$cleanup = _step.value.cleanup,
-              cleanup = _step$value$cleanup === void 0 ? function () {} : _step$value$cleanup;
-          cleanup();
+    for (; $ < s.length && (d.lastIndex = $, u = d.exec(s), null !== u);) $ = d.lastIndex, d === c ? "!--" === u[1] ? d = v : void 0 !== u[1] ? d = a : void 0 !== u[2] ? (m.test(u[2]) && (h = RegExp("</" + u[2], "g")), d = f) : void 0 !== u[3] && (d = f) : d === f ? ">" === u[0] ? (d = null != h ? h : c, p = -1) : void 0 === u[1] ? p = -2 : (p = d.lastIndex - u[2].length, o = u[1], d = void 0 === u[3] ? f : '"' === u[3] ? g : _) : d === g || d === _ ? d = f : d === v || d === a ? d = c : (d = f, h = void 0);
+
+    const y = d === f && t[i + 1].startsWith("/>") ? " " : "";
+    r += d === c ? s + n : p >= 0 ? (l.push(o), s.slice(0, p) + "$lit$" + s.slice(p) + e + y) : s + e + (-2 === p ? (l.push(void 0), i) : y);
+  }
+
+  const u = r + (t[o] || "<?>") + (2 === i ? "</svg>" : "");
+  if (!Array.isArray(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return [void 0 !== s ? s.createHTML(u) : u, l];
+};
+
+class C {
+  constructor({
+    strings: t,
+    _$litType$: s
+  }, n) {
+    let l;
+    this.parts = [];
+    let r = 0,
+        d = 0;
+    const u = t.length - 1,
+          c = this.parts,
+          [v, a] = E(t, s);
+
+    if (this.el = C.createElement(v, n), A.currentNode = this.el.content, 2 === s) {
+      const t = this.el.content,
+            i = t.firstChild;
+      i.remove(), t.append(...i.childNodes);
+    }
+
+    for (; null !== (l = A.nextNode()) && c.length < u;) {
+      if (1 === l.nodeType) {
+        if (l.hasAttributes()) {
+          const t = [];
+
+          for (const i of l.getAttributeNames()) if (i.endsWith("$lit$") || i.startsWith(e)) {
+            const s = a[d++];
+
+            if (t.push(i), void 0 !== s) {
+              const t = l.getAttribute(s.toLowerCase() + "$lit$").split(e),
+                    i = /([.?@])?(.*)/.exec(s);
+              c.push({
+                type: 1,
+                index: r,
+                name: i[2],
+                strings: t,
+                ctor: "." === i[1] ? M : "?" === i[1] ? k : "@" === i[1] ? H : S
+              });
+            } else c.push({
+              type: 6,
+              index: r
+            });
+          }
+
+          for (const i of t) l.removeAttribute(i);
         }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
+
+        if (m.test(l.tagName)) {
+          const t = l.textContent.split(e),
+                s = t.length - 1;
+
+          if (s > 0) {
+            l.textContent = i ? i.emptyScript : "";
+
+            for (let i = 0; i < s; i++) l.append(t[i], h()), A.nextNode(), c.push({
+              type: 2,
+              index: ++r
+            });
+
+            l.append(t[s], h());
+          }
+        }
+      } else if (8 === l.nodeType) if (l.data === o) c.push({
+        type: 2,
+        index: r
+      });else {
+        let t = -1;
+
+        for (; -1 !== (t = l.data.indexOf(e, t + 1));) c.push({
+          type: 7,
+          index: r
+        }), t += e.length - 1;
       }
 
-      this.elements["delete"](element);
+      r++;
     }
-  }, {
-    key: "focusElement",
-    value: function focusElement(element) {
-      this.currentElement = element;
-      this.hookKey = -1;
-    }
-  }, {
-    key: "unfocusElement",
-    value: function unfocusElement() {
-      this.currentElement = undefined;
-      this.hookKey = undefined;
-    }
-  }]);
-
-  return _class2;
-}())();
-var useEffect = function useEffect(fn, deps) {
-  var hook = Hooks.findOrCreateHook({
-    deps: deps
-  });
-
-  var dependenciesMatch = function dependenciesMatch(prev, curr) {
-    return Array.isArray(curr) && equals(prev, curr);
-  };
-
-  var hasCleanup = function hasCleanup(hook) {
-    return typeof hook.cleanup === 'function';
-  };
-
-  if (!dependenciesMatch(hook.deps, deps) && hasCleanup(hook)) {
-    hook.cleanup();
-  } // If this is the first time running the hook or dependencies have changed
-
-
-  if (!dependenciesMatch(hook.deps, deps) || !hasCleanup(hook)) {
-    // defer until after render()
-    setTimeout(function () {
-      var cleanup = fn();
-      hook.cleanup = typeof cleanup === 'function' ? cleanup : function () {};
-      hook.deps = deps;
-    }, 0);
   }
+
+  static createElement(t, i) {
+    const s = l.createElement("template");
+    return s.innerHTML = t, s;
+  }
+
+}
+
+function P(t, i, s = t, e) {
+  var o, n, l, h;
+  if (i === b) return i;
+  let d = void 0 !== e ? null === (o = s._$Cl) || void 0 === o ? void 0 : o[e] : s._$Cu;
+  const u = r(i) ? void 0 : i._$litDirective$;
+  return (null == d ? void 0 : d.constructor) !== u && (null === (n = null == d ? void 0 : d._$AO) || void 0 === n || n.call(d, !1), void 0 === u ? d = void 0 : (d = new u(t), d._$AT(t, s, e)), void 0 !== e ? (null !== (l = (h = s)._$Cl) && void 0 !== l ? l : h._$Cl = [])[e] = d : s._$Cu = d), void 0 !== d && (i = P(t, d._$AS(t, i.values), d, e)), i;
+}
+
+class V {
+  constructor(t, i) {
+    this.v = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
+  }
+
+  get parentNode() {
+    return this._$AM.parentNode;
+  }
+
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+
+  p(t) {
+    var i;
+    const {
+      el: {
+        content: s
+      },
+      parts: e
+    } = this._$AD,
+          o = (null !== (i = null == t ? void 0 : t.creationScope) && void 0 !== i ? i : l).importNode(s, !0);
+    A.currentNode = o;
+    let n = A.nextNode(),
+        h = 0,
+        r = 0,
+        d = e[0];
+
+    for (; void 0 !== d;) {
+      if (h === d.index) {
+        let i;
+        2 === d.type ? i = new N(n, n.nextSibling, this, t) : 1 === d.type ? i = new d.ctor(n, d.name, d.strings, this, t) : 6 === d.type && (i = new I(n, this, t)), this.v.push(i), d = e[++r];
+      }
+
+      h !== (null == d ? void 0 : d.index) && (n = A.nextNode(), h++);
+    }
+
+    return o;
+  }
+
+  m(t) {
+    let i = 0;
+
+    for (const s of this.v) void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
+  }
+
+}
+
+class N {
+  constructor(t, i, s, e) {
+    var o;
+    this.type = 2, this._$AH = w, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$C_ = null === (o = null == e ? void 0 : e.isConnected) || void 0 === o || o;
+  }
+
+  get _$AU() {
+    var t, i;
+    return null !== (i = null === (t = this._$AM) || void 0 === t ? void 0 : t._$AU) && void 0 !== i ? i : this._$C_;
+  }
+
+  get parentNode() {
+    let t = this._$AA.parentNode;
+    const i = this._$AM;
+    return void 0 !== i && 11 === t.nodeType && (t = i.parentNode), t;
+  }
+
+  get startNode() {
+    return this._$AA;
+  }
+
+  get endNode() {
+    return this._$AB;
+  }
+
+  _$AI(t, i = this) {
+    t = P(this, t, i), r(t) ? t === w || null == t || "" === t ? (this._$AH !== w && this._$AR(), this._$AH = w) : t !== this._$AH && t !== b && this.T(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.k(t) : u(t) ? this.S(t) : this.T(t);
+  }
+
+  j(t, i = this._$AB) {
+    return this._$AA.parentNode.insertBefore(t, i);
+  }
+
+  k(t) {
+    this._$AH !== t && (this._$AR(), this._$AH = this.j(t));
+  }
+
+  T(t) {
+    this._$AH !== w && r(this._$AH) ? this._$AA.nextSibling.data = t : this.k(l.createTextNode(t)), this._$AH = t;
+  }
+
+  $(t) {
+    var i;
+    const {
+      values: s,
+      _$litType$: e
+    } = t,
+          o = "number" == typeof e ? this._$AC(t) : (void 0 === e.el && (e.el = C.createElement(e.h, this.options)), e);
+    if ((null === (i = this._$AH) || void 0 === i ? void 0 : i._$AD) === o) this._$AH.m(s);else {
+      const t = new V(o, this),
+            i = t.p(this.options);
+      t.m(s), this.k(i), this._$AH = t;
+    }
+  }
+
+  _$AC(t) {
+    let i = x.get(t.strings);
+    return void 0 === i && x.set(t.strings, i = new C(t)), i;
+  }
+
+  S(t) {
+    d(this._$AH) || (this._$AH = [], this._$AR());
+    const i = this._$AH;
+    let s,
+        e = 0;
+
+    for (const o of t) e === i.length ? i.push(s = new N(this.j(h()), this.j(h()), this, this.options)) : s = i[e], s._$AI(o), e++;
+
+    e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
+  }
+
+  _$AR(t = this._$AA.nextSibling, i) {
+    var s;
+
+    for (null === (s = this._$AP) || void 0 === s || s.call(this, !1, !0, i); t && t !== this._$AB;) {
+      const i = t.nextSibling;
+      t.remove(), t = i;
+    }
+  }
+
+  setConnected(t) {
+    var i;
+    void 0 === this._$AM && (this._$C_ = t, null === (i = this._$AP) || void 0 === i || i.call(this, t));
+  }
+
+}
+
+class S {
+  constructor(t, i, s, e, o) {
+    this.type = 1, this._$AH = w, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = o, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String()), this.strings = s) : this._$AH = w;
+  }
+
+  get tagName() {
+    return this.element.tagName;
+  }
+
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+
+  _$AI(t, i = this, s, e) {
+    const o = this.strings;
+    let n = !1;
+    if (void 0 === o) t = P(this, t, i, 0), n = !r(t) || t !== this._$AH && t !== b, n && (this._$AH = t);else {
+      const e = t;
+      let l, h;
+
+      for (t = o[0], l = 0; l < o.length - 1; l++) h = P(this, e[s + l], i, l), h === b && (h = this._$AH[l]), n || (n = !r(h) || h !== this._$AH[l]), h === w ? t = w : t !== w && (t += (null != h ? h : "") + o[l + 1]), this._$AH[l] = h;
+    }
+    n && !e && this.P(t);
+  }
+
+  P(t) {
+    t === w ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, null != t ? t : "");
+  }
+
+}
+
+class M extends S {
+  constructor() {
+    super(...arguments), this.type = 3;
+  }
+
+  P(t) {
+    this.element[this.name] = t === w ? void 0 : t;
+  }
+
+}
+
+const R = i ? i.emptyScript : "";
+
+class k extends S {
+  constructor() {
+    super(...arguments), this.type = 4;
+  }
+
+  P(t) {
+    t && t !== w ? this.element.setAttribute(this.name, R) : this.element.removeAttribute(this.name);
+  }
+
+}
+
+class H extends S {
+  constructor(t, i, s, e, o) {
+    super(t, i, s, e, o), this.type = 5;
+  }
+
+  _$AI(t, i = this) {
+    var s;
+    if ((t = null !== (s = P(this, t, i, 0)) && void 0 !== s ? s : w) === b) return;
+    const e = this._$AH,
+          o = t === w && e !== w || t.capture !== e.capture || t.once !== e.once || t.passive !== e.passive,
+          n = t !== w && (e === w || o);
+    o && this.element.removeEventListener(this.name, this, e), n && this.element.addEventListener(this.name, this, t), this._$AH = t;
+  }
+
+  handleEvent(t) {
+    var i, s;
+    "function" == typeof this._$AH ? this._$AH.call(null !== (s = null === (i = this.options) || void 0 === i ? void 0 : i.host) && void 0 !== s ? s : this.element, t) : this._$AH.handleEvent(t);
+  }
+
+}
+
+class I {
+  constructor(t, i, s) {
+    this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
+  }
+
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+
+  _$AI(t) {
+    P(this, t);
+  }
+
+}
+
+const z = window.litHtmlPolyfillSupport;
+null == z || z(C, N), (null !== (t = globalThis.litHtmlVersions) && void 0 !== t ? t : globalThis.litHtmlVersions = []).push("2.2.7");
+
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+/* global Reflect, Promise */
+var extendStatics = function (d, b) {
+  extendStatics = Object.setPrototypeOf || {
+    __proto__: []
+  } instanceof Array && function (d, b) {
+    d.__proto__ = b;
+  } || function (d, b) {
+    for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+  };
+
+  return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+  if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+  extendStatics(d, b);
+
+  function __() {
+    this.constructor = d;
+  }
+
+  d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+var __assign = function () {
+  __assign = Object.assign || function __assign(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+function __values(o) {
+  var s = typeof Symbol === "function" && Symbol.iterator,
+      m = s && o[s],
+      i = 0;
+  if (m) return m.call(o);
+  if (o && typeof o.length === "number") return {
+    next: function () {
+      if (o && i >= o.length) o = void 0;
+      return {
+        value: o && o[i++],
+        done: !o
+      };
+    }
+  };
+  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+function __read(o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o),
+      r,
+      ar = [],
+      e;
+
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+  } catch (error) {
+    e = {
+      error: error
+    };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+
+  return ar;
+}
+function __spreadArray(to, from, pack) {
+  if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+    if (ar || !(i in from)) {
+      if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+      ar[i] = from[i];
+    }
+  }
+  return to.concat(ar || Array.prototype.slice.call(from));
+}
+
+/**
+ * Source: ftp://ftp.unicode.org/Public/UCD/latest/ucd/SpecialCasing.txt
+ */
+/**
+ * Lower case as a function.
+ */
+
+function lowerCase(str) {
+  return str.toLowerCase();
+}
+
+var DEFAULT_SPLIT_REGEXP = [/([a-z0-9])([A-Z])/g, /([A-Z])([A-Z][a-z])/g]; // Remove all non-word characters.
+
+var DEFAULT_STRIP_REGEXP = /[^A-Z0-9]+/gi;
+/**
+ * Normalize the string into something other libraries can manipulate easier.
+ */
+
+function noCase(input, options) {
+  if (options === void 0) {
+    options = {};
+  }
+
+  var _a = options.splitRegexp,
+      splitRegexp = _a === void 0 ? DEFAULT_SPLIT_REGEXP : _a,
+      _b = options.stripRegexp,
+      stripRegexp = _b === void 0 ? DEFAULT_STRIP_REGEXP : _b,
+      _c = options.transform,
+      transform = _c === void 0 ? lowerCase : _c,
+      _d = options.delimiter,
+      delimiter = _d === void 0 ? " " : _d;
+  var result = replace(replace(input, splitRegexp, "$1\0$2"), stripRegexp, "\0");
+  var start = 0;
+  var end = result.length; // Trim the delimiter from around the output string.
+
+  while (result.charAt(start) === "\0") start++;
+
+  while (result.charAt(end - 1) === "\0") end--; // Transform each token independently.
+
+
+  return result.slice(start, end).split("\0").map(transform).join(delimiter);
+}
+/**
+ * Replace `re` in the input string with the replacement value.
+ */
+
+function replace(input, re, value) {
+  if (re instanceof RegExp) return input.replace(re, value);
+  return re.reduce(function (input, re) {
+    return input.replace(re, value);
+  }, input);
+}
+
+function dotCase(input, options) {
+  if (options === void 0) {
+    options = {};
+  }
+
+  return noCase(input, __assign({
+    delimiter: "."
+  }, options));
+}
+
+function paramCase(input, options) {
+  if (options === void 0) {
+    options = {};
+  }
+
+  return dotCase(input, __assign({
+    delimiter: "-"
+  }, options));
+}
+
+var customElement = function customElement(tagName) {
+  return function (clazz, _ref) {
+    var addInitializer = _ref.addInitializer;
+    addInitializer(function () {
+      return customElements.define(tagName, clazz);
+    });
+    return clazz;
+  };
+};
+var state = function state() {
+  return function (_ref2) {
+    var _get = _ref2.get,
+        _set = _ref2.set;
+    return {
+      get: function get() {
+        return _get.call(this);
+      },
+      set: function set(value) {
+        setTimeout(this.update.bind(this), 0);
+        return _set.call(this, value);
+      },
+      init: function init(value) {
+        return value;
+      }
+    };
+  };
+};
+var attribute = function attribute() {
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref3$type = _ref3.type,
+      type = _ref3$type === void 0 ? String : _ref3$type;
+
+  return function (_, _ref4) {
+    var name = _ref4.name;
+    return function (initialValue) {
+      this.observedAttributes = [].concat(_toConsumableArray(this.observedAttributes), [paramCase(name)]);
+      this.properties = _objectSpread2(_objectSpread2({}, this.properties), {}, _defineProperty({}, name, {
+        type: type,
+        "default": initialValue
+      }));
+    };
+  };
 };
 
 var ReactiveElement = /*#__PURE__*/function (_HTMLElement) {
@@ -824,16 +1276,25 @@ var ReactiveElement = /*#__PURE__*/function (_HTMLElement) {
 
     _this = _super.call(this);
 
-    _defineProperty(_assertThisInitialized(_this), "state", {});
-
     _this.attachShadow({
       mode: 'open'
     });
 
-    _this.constructor.observedAttributes.forEach(function (key) {
-      return reflectiveProperty(_assertThisInitialized(_this), key);
-    });
+    Object.entries(_this.constructor.properties).forEach(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          key = _ref2[0],
+          _ref2$ = _ref2[1],
+          type = _ref2$.type,
+          def = _ref2$["default"];
 
+      return Object.defineProperty(_assertThisInitialized(_this), key, {
+        get: function get() {
+          var _this$getAttribute;
+
+          return type((_this$getAttribute = this.getAttribute(paramCase(key))) !== null && _this$getAttribute !== void 0 ? _this$getAttribute : def);
+        }
+      });
+    });
     return _this;
   }
 
@@ -841,21 +1302,12 @@ var ReactiveElement = /*#__PURE__*/function (_HTMLElement) {
     key: "update",
     value: function update() {
       if (this.isConnected) {
-        render(this.render(), this.shadowRoot);
+        T(this.render(), this.shadowRoot);
       }
     }
   }, {
     key: "connectedCallback",
     value: function connectedCallback() {
-      var _this2 = this;
-
-      Object.entries(this.state).forEach(function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            key = _ref2[0],
-            value = _ref2[1];
-
-        return reactiveProperty(_this2.state, key, value, _this2.update.bind(_this2));
-      });
       this.update();
     }
   }, {
@@ -868,368 +1320,971 @@ var ReactiveElement = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "disconnectedCallback",
     value: function disconnectedCallback() {}
-  }], [{
-    key: "observedAttributes",
-    get: function get() {
-      var _this$properties;
-
-      return (_this$properties = this.properties) !== null && _this$properties !== void 0 ? _this$properties : [];
-    }
   }]);
 
   return ReactiveElement;
 }( /*#__PURE__*/_wrapNativeSuper(HTMLElement));
-var reactiveElement = function reactiveElement(props, _render) {
-  var _class;
 
-  return _class = /*#__PURE__*/function (_ReactiveElement) {
-    _inherits(_class, _ReactiveElement);
+_defineProperty(ReactiveElement, "observedAttributes", []);
 
-    var _super2 = _createSuper(_class);
+_defineProperty(ReactiveElement, "properties", {});
 
-    function _class() {
-      _classCallCheck(this, _class);
+var _initClass, _dec, _dec2, _init_initialCount, _dec3, _init_count, _initProto, _templateObject$1;
 
-      return _super2.apply(this, arguments);
+var _Counter;
+
+_dec = customElement('app-counter');
+_dec2 = attribute({
+  type: Number
+});
+_dec3 = state();
+new (function () {
+  var _A = /*#__PURE__*/new WeakMap();
+
+  var Counter = /*#__PURE__*/function (_ReactiveElement) {
+    _inherits(Counter, _ReactiveElement);
+
+    var _super = _createSuper(Counter);
+
+    function Counter() {
+      var _this;
+
+      _classCallCheck(this, Counter);
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      _this = _super.call.apply(_super, [this].concat(args));
+
+      _classPrivateFieldInitSpec(_assertThisInitialized(_this), _A, {
+        writable: true,
+        value: _init_count(_assertThisInitialized(_this), _this.initialCount)
+      });
+
+      return _this;
     }
 
-    _createClass(_class, [{
+    _createClass(Counter, [{
+      key: "count",
+      get: function get() {
+        return _classPrivateFieldGet(this, _A);
+      },
+      set: function set(v) {
+        _classPrivateFieldSet(this, _A, v);
+      }
+    }, {
+      key: "increment",
+      value: function increment() {
+        this.count++;
+      }
+    }, {
+      key: "decrement",
+      value: function decrement() {
+        this.count = this.count === 0 ? this.count : this.count - 1;
+      }
+    }, {
+      key: "reset",
+      value: function reset() {
+        this.count = 0;
+      }
+    }, {
       key: "render",
       value: function render() {
-        return _render(_objectSpread2(_objectSpread2({}, this), {}, {
-          host: this
-        }));
-      }
-    }, {
-      key: "update",
-      value: function update() {
-        Hooks.focusElement(this);
-
-        _get(_getPrototypeOf(_class.prototype), "update", this).call(this);
-
-        Hooks.unfocusElement(this);
-      }
-    }, {
-      key: "connectedCallback",
-      value: function connectedCallback() {
-        Hooks.setElement(this);
-
-        _get(_getPrototypeOf(_class.prototype), "connectedCallback", this).call(this);
-      }
-    }, {
-      key: "disconnectedCallback",
-      value: function disconnectedCallback() {
-        _get(_getPrototypeOf(_class.prototype), "disconnectedCallback", this).call(this);
-
-        Hooks.removeElement(this);
+        return $(_templateObject$1 || (_templateObject$1 = _taggedTemplateLiteral(["\n      <h1>Count: ", "</h1>\n      <button @click=\"", "\">Increment</button>\n      <button @click=\"", "\">Decrement</button>\n      <button @click=\"", "\">Reset</button>\n    "])), this.count, this.increment.bind(this), this.decrement.bind(this), this.reset.bind(this));
       }
     }]);
 
-    return _class;
-  }(ReactiveElement), _defineProperty(_class, "properties", props), _class;
-};
+    return Counter;
+  }(ReactiveElement);
 
-var _init_count, _initProto, _templateObject$4;
+  var _applyDecs2 = _applyDecs(Counter, [[_dec3, 1, "count"], [_dec2, 5, "initialCount"]], [_dec]);
 
-var reactive = function reactive(_ref) {
-  var _get = _ref.get,
-      _set = _ref.set;
-  return {
-    get: function get() {
-      return _get.call(this);
-    },
-    set: function set(value) {
-      setTimeout(this.update.bind(this), 0);
-      return _set.call(this, value);
-    },
-    init: function init(value) {
-      return value;
+  var _applyDecs3 = _slicedToArray(_applyDecs2, 5);
+
+  _init_count = _applyDecs3[0];
+  _init_initialCount = _applyDecs3[1];
+  _initProto = _applyDecs3[2];
+  _Counter = _applyDecs3[3];
+  _initClass = _applyDecs3[4];
+}(), /*#__PURE__*/function (_identity2) {
+  _inherits(_class2, _identity2);
+
+  var _super2 = _createSuper(_class2);
+
+  function _class2() {
+    var _this2;
+
+    _classCallCheck(this, _class2);
+
+    (_this2 = _super2.call(this, _Counter), _defineProperty(_assertThisInitialized(_this2), "initialCount", (_initProto(_assertThisInitialized(_this2)), _init_initialCount(_assertThisInitialized(_this2), 1)))), _initClass();
+    return _this2;
+  }
+
+  return _createClass(_class2);
+}(_identity))();
+
+function isFunction(value) {
+  return typeof value === 'function';
+}
+
+function createErrorClass(createImpl) {
+  var _super = function (instance) {
+    Error.call(instance);
+    instance.stack = new Error().stack;
+  };
+
+  var ctorFunc = createImpl(_super);
+  ctorFunc.prototype = Object.create(Error.prototype);
+  ctorFunc.prototype.constructor = ctorFunc;
+  return ctorFunc;
+}
+
+var UnsubscriptionError = createErrorClass(function (_super) {
+  return function UnsubscriptionErrorImpl(errors) {
+    _super(this);
+
+    this.message = errors ? errors.length + " errors occurred during unsubscription:\n" + errors.map(function (err, i) {
+      return i + 1 + ") " + err.toString();
+    }).join('\n  ') : '';
+    this.name = 'UnsubscriptionError';
+    this.errors = errors;
+  };
+});
+
+function arrRemove(arr, item) {
+  if (arr) {
+    var index = arr.indexOf(item);
+    0 <= index && arr.splice(index, 1);
+  }
+}
+
+var Subscription = function () {
+  function Subscription(initialTeardown) {
+    this.initialTeardown = initialTeardown;
+    this.closed = false;
+    this._parentage = null;
+    this._finalizers = null;
+  }
+
+  Subscription.prototype.unsubscribe = function () {
+    var e_1, _a, e_2, _b;
+
+    var errors;
+
+    if (!this.closed) {
+      this.closed = true;
+      var _parentage = this._parentage;
+
+      if (_parentage) {
+        this._parentage = null;
+
+        if (Array.isArray(_parentage)) {
+          try {
+            for (var _parentage_1 = __values(_parentage), _parentage_1_1 = _parentage_1.next(); !_parentage_1_1.done; _parentage_1_1 = _parentage_1.next()) {
+              var parent_1 = _parentage_1_1.value;
+              parent_1.remove(this);
+            }
+          } catch (e_1_1) {
+            e_1 = {
+              error: e_1_1
+            };
+          } finally {
+            try {
+              if (_parentage_1_1 && !_parentage_1_1.done && (_a = _parentage_1.return)) _a.call(_parentage_1);
+            } finally {
+              if (e_1) throw e_1.error;
+            }
+          }
+        } else {
+          _parentage.remove(this);
+        }
+      }
+
+      var initialFinalizer = this.initialTeardown;
+
+      if (isFunction(initialFinalizer)) {
+        try {
+          initialFinalizer();
+        } catch (e) {
+          errors = e instanceof UnsubscriptionError ? e.errors : [e];
+        }
+      }
+
+      var _finalizers = this._finalizers;
+
+      if (_finalizers) {
+        this._finalizers = null;
+
+        try {
+          for (var _finalizers_1 = __values(_finalizers), _finalizers_1_1 = _finalizers_1.next(); !_finalizers_1_1.done; _finalizers_1_1 = _finalizers_1.next()) {
+            var finalizer = _finalizers_1_1.value;
+
+            try {
+              execFinalizer(finalizer);
+            } catch (err) {
+              errors = errors !== null && errors !== void 0 ? errors : [];
+
+              if (err instanceof UnsubscriptionError) {
+                errors = __spreadArray(__spreadArray([], __read(errors)), __read(err.errors));
+              } else {
+                errors.push(err);
+              }
+            }
+          }
+        } catch (e_2_1) {
+          e_2 = {
+            error: e_2_1
+          };
+        } finally {
+          try {
+            if (_finalizers_1_1 && !_finalizers_1_1.done && (_b = _finalizers_1.return)) _b.call(_finalizers_1);
+          } finally {
+            if (e_2) throw e_2.error;
+          }
+        }
+      }
+
+      if (errors) {
+        throw new UnsubscriptionError(errors);
+      }
     }
   };
+
+  Subscription.prototype.add = function (teardown) {
+    var _a;
+
+    if (teardown && teardown !== this) {
+      if (this.closed) {
+        execFinalizer(teardown);
+      } else {
+        if (teardown instanceof Subscription) {
+          if (teardown.closed || teardown._hasParent(this)) {
+            return;
+          }
+
+          teardown._addParent(this);
+        }
+
+        (this._finalizers = (_a = this._finalizers) !== null && _a !== void 0 ? _a : []).push(teardown);
+      }
+    }
+  };
+
+  Subscription.prototype._hasParent = function (parent) {
+    var _parentage = this._parentage;
+    return _parentage === parent || Array.isArray(_parentage) && _parentage.includes(parent);
+  };
+
+  Subscription.prototype._addParent = function (parent) {
+    var _parentage = this._parentage;
+    this._parentage = Array.isArray(_parentage) ? (_parentage.push(parent), _parentage) : _parentage ? [_parentage, parent] : parent;
+  };
+
+  Subscription.prototype._removeParent = function (parent) {
+    var _parentage = this._parentage;
+
+    if (_parentage === parent) {
+      this._parentage = null;
+    } else if (Array.isArray(_parentage)) {
+      arrRemove(_parentage, parent);
+    }
+  };
+
+  Subscription.prototype.remove = function (teardown) {
+    var _finalizers = this._finalizers;
+    _finalizers && arrRemove(_finalizers, teardown);
+
+    if (teardown instanceof Subscription) {
+      teardown._removeParent(this);
+    }
+  };
+
+  Subscription.EMPTY = function () {
+    var empty = new Subscription();
+    empty.closed = true;
+    return empty;
+  }();
+
+  return Subscription;
+}();
+var EMPTY_SUBSCRIPTION = Subscription.EMPTY;
+function isSubscription(value) {
+  return value instanceof Subscription || value && 'closed' in value && isFunction(value.remove) && isFunction(value.add) && isFunction(value.unsubscribe);
+}
+
+function execFinalizer(finalizer) {
+  if (isFunction(finalizer)) {
+    finalizer();
+  } else {
+    finalizer.unsubscribe();
+  }
+}
+
+var config = {
+  onUnhandledError: null,
+  onStoppedNotification: null,
+  Promise: undefined,
+  useDeprecatedSynchronousErrorHandling: false,
+  useDeprecatedNextContext: false
 };
 
-var _A = /*#__PURE__*/new WeakMap();
+var timeoutProvider = {
+  setTimeout: function (handler, timeout) {
+    var args = [];
 
-var Counter = /*#__PURE__*/function (_ReactiveElement) {
-  _inherits(Counter, _ReactiveElement);
-
-  var _super = _createSuper(Counter);
-
-  function Counter() {
-    var _this;
-
-    _classCallCheck(this, Counter);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _i = 2; _i < arguments.length; _i++) {
+      args[_i - 2] = arguments[_i];
     }
 
-    _this = _super.call.apply(_super, [this].concat(args));
+    var delegate = timeoutProvider.delegate;
 
-    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _A, {
-      writable: true,
-      value: (_initProto(_assertThisInitialized(_this)), _init_count(_assertThisInitialized(_this), 0))
-    });
+    if (delegate === null || delegate === void 0 ? void 0 : delegate.setTimeout) {
+      return delegate.setTimeout.apply(delegate, __spreadArray([handler, timeout], __read(args)));
+    }
+
+    return setTimeout.apply(void 0, __spreadArray([handler, timeout], __read(args)));
+  },
+  clearTimeout: function (handle) {
+    var delegate = timeoutProvider.delegate;
+    return ((delegate === null || delegate === void 0 ? void 0 : delegate.clearTimeout) || clearTimeout)(handle);
+  },
+  delegate: undefined
+};
+
+function reportUnhandledError(err) {
+  timeoutProvider.setTimeout(function () {
+
+    {
+      throw err;
+    }
+  });
+}
+
+function noop() {}
+
+var context = null;
+function errorContext(cb) {
+  if (config.useDeprecatedSynchronousErrorHandling) {
+    var isRoot = !context;
+
+    if (isRoot) {
+      context = {
+        errorThrown: false,
+        error: null
+      };
+    }
+
+    cb();
+
+    if (isRoot) {
+      var _a = context,
+          errorThrown = _a.errorThrown,
+          error = _a.error;
+      context = null;
+
+      if (errorThrown) {
+        throw error;
+      }
+    }
+  } else {
+    cb();
+  }
+}
+
+var Subscriber = function (_super) {
+  __extends(Subscriber, _super);
+
+  function Subscriber(destination) {
+    var _this = _super.call(this) || this;
+
+    _this.isStopped = false;
+
+    if (destination) {
+      _this.destination = destination;
+
+      if (isSubscription(destination)) {
+        destination.add(_this);
+      }
+    } else {
+      _this.destination = EMPTY_OBSERVER;
+    }
 
     return _this;
   }
 
-  _createClass(Counter, [{
-    key: "count",
-    get: function get() {
-      return _classPrivateFieldGet(this, _A);
-    },
-    set: function set(v) {
-      _classPrivateFieldSet(this, _A, v);
-    }
-  }, {
-    key: "increment",
-    value: function increment() {
-      this.count++;
-    }
-  }, {
-    key: "decrement",
-    value: function decrement() {
-      this.count = this.count === 0 ? this.count : this.count - 1;
-    }
-  }, {
-    key: "reset",
-    value: function reset() {
-      this.count = 0;
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      return html(_templateObject$4 || (_templateObject$4 = _taggedTemplateLiteral(["\n      <h1>Count: ", "</h1>\n      <button @click=\"", "\">Increment</button>\n      <button @click=\"", "\">Decrement</button>\n      <button @click=\"", "\">Reset</button>\n    "])), this.count, this.increment.bind(this), this.decrement.bind(this), this.reset.bind(this));
-    }
-  }]);
+  Subscriber.create = function (next, error, complete) {
+    return new SafeSubscriber(next, error, complete);
+  };
 
-  return Counter;
-}(ReactiveElement);
+  Subscriber.prototype.next = function (value) {
+    if (this.isStopped) ; else {
+      this._next(value);
+    }
+  };
 
-var _applyDecs2 = _applyDecs(Counter, [[reactive, 1, "count"]], []);
+  Subscriber.prototype.error = function (err) {
+    if (this.isStopped) ; else {
+      this.isStopped = true;
 
-var _applyDecs3 = _slicedToArray(_applyDecs2, 2);
+      this._error(err);
+    }
+  };
 
-_init_count = _applyDecs3[0];
-_initProto = _applyDecs3[1];
-customElements.define('app-counter', Counter);
+  Subscriber.prototype.complete = function () {
+    if (this.isStopped) ; else {
+      this.isStopped = true;
 
-var persist = curry(function (storage, key, observable) {
-  if (storage.getItem(key) !== null) {
-    observable.next(JSON.parse(storage.getItem(key)));
+      this._complete();
+    }
+  };
+
+  Subscriber.prototype.unsubscribe = function () {
+    if (!this.closed) {
+      this.isStopped = true;
+
+      _super.prototype.unsubscribe.call(this);
+
+      this.destination = null;
+    }
+  };
+
+  Subscriber.prototype._next = function (value) {
+    this.destination.next(value);
+  };
+
+  Subscriber.prototype._error = function (err) {
+    try {
+      this.destination.error(err);
+    } finally {
+      this.unsubscribe();
+    }
+  };
+
+  Subscriber.prototype._complete = function () {
+    try {
+      this.destination.complete();
+    } finally {
+      this.unsubscribe();
+    }
+  };
+
+  return Subscriber;
+}(Subscription);
+var _bind = Function.prototype.bind;
+
+function bind(fn, thisArg) {
+  return _bind.call(fn, thisArg);
+}
+
+var ConsumerObserver = function () {
+  function ConsumerObserver(partialObserver) {
+    this.partialObserver = partialObserver;
   }
 
-  observable.subscribe(function (value) {
-    return storage.setItem(key, JSON.stringify(value));
-  });
-  return observable;
-});
+  ConsumerObserver.prototype.next = function (value) {
+    var partialObserver = this.partialObserver;
 
-var form$ = new BehaviorSubject({
-  origin: 'Worka, Ethiopia',
-  roaster: 'Madcap Coffee Company'
-});
-var formStore = persist(sessionStorage, 'form', form$);
-var settings$ = new BehaviorSubject({
-  inputColor: 'green',
-  labelColor: 'blue'
-});
-var settingsStore = persist(localStorage, 'settings', settings$);
+    if (partialObserver.next) {
+      try {
+        partialObserver.next(value);
+      } catch (error) {
+        handleUnhandledError(error);
+      }
+    }
+  };
 
-var connect = curry(function (observable, mapStateToProps, clazz) {
-  return /*#__PURE__*/function (_clazz) {
-    _inherits(_class, _clazz);
+  ConsumerObserver.prototype.error = function (err) {
+    var partialObserver = this.partialObserver;
 
-    var _super = _createSuper(_class);
+    if (partialObserver.error) {
+      try {
+        partialObserver.error(err);
+      } catch (error) {
+        handleUnhandledError(error);
+      }
+    } else {
+      handleUnhandledError(err);
+    }
+  };
 
-    function _class() {
-      _classCallCheck(this, _class);
+  ConsumerObserver.prototype.complete = function () {
+    var partialObserver = this.partialObserver;
 
-      return _super.apply(this, arguments);
+    if (partialObserver.complete) {
+      try {
+        partialObserver.complete();
+      } catch (error) {
+        handleUnhandledError(error);
+      }
+    }
+  };
+
+  return ConsumerObserver;
+}();
+
+var SafeSubscriber = function (_super) {
+  __extends(SafeSubscriber, _super);
+
+  function SafeSubscriber(observerOrNext, error, complete) {
+    var _this = _super.call(this) || this;
+
+    var partialObserver;
+
+    if (isFunction(observerOrNext) || !observerOrNext) {
+      partialObserver = {
+        next: observerOrNext !== null && observerOrNext !== void 0 ? observerOrNext : undefined,
+        error: error !== null && error !== void 0 ? error : undefined,
+        complete: complete !== null && complete !== void 0 ? complete : undefined
+      };
+    } else {
+      var context_1;
+
+      if (_this && config.useDeprecatedNextContext) {
+        context_1 = Object.create(observerOrNext);
+
+        context_1.unsubscribe = function () {
+          return _this.unsubscribe();
+        };
+
+        partialObserver = {
+          next: observerOrNext.next && bind(observerOrNext.next, context_1),
+          error: observerOrNext.error && bind(observerOrNext.error, context_1),
+          complete: observerOrNext.complete && bind(observerOrNext.complete, context_1)
+        };
+      } else {
+        partialObserver = observerOrNext;
+      }
     }
 
-    _createClass(_class, [{
-      key: "connectedCallback",
-      value: function connectedCallback() {
-        var _this = this;
+    _this.destination = new ConsumerObserver(partialObserver);
+    return _this;
+  }
 
-        Object.keys(mapStateToProps(observable.value)).forEach(function (key) {
-          return Object.defineProperty(_this, key, {
-            get: function get() {
-              return mapStateToProps(observable.value)[key];
-            },
-            enumerable: true
-          });
-        });
+  return SafeSubscriber;
+}(Subscriber);
 
-        _get(_getPrototypeOf(_class.prototype), "connectedCallback", this).call(this);
+function handleUnhandledError(error) {
+  {
+    reportUnhandledError(error);
+  }
+}
 
-        this["store:".concat(observable.toString(), ":subscription")] = observable.subscribe(this.update.bind(this));
-      }
-    }, {
-      key: "disconnectedCallback",
-      value: function disconnectedCallback() {
-        _get(_getPrototypeOf(_class.prototype), "disconnectedCallback", this).call(this);
+function defaultErrorHandler(err) {
+  throw err;
+}
 
-        this["store:".concat(observable.toString(), ":subscription")].unsubscribe();
-      }
-    }]);
-
-    return _class;
-  }(clazz);
-});
-
-var _templateObject$3;
-
-var handleInput = function handleInput(event, host) {
-  event.stopPropagation();
-  host.dispatchEvent(new CustomEvent('input', {
-    detail: event.target.value
-  }));
+var EMPTY_OBSERVER = {
+  closed: true,
+  next: noop,
+  error: defaultErrorHandler,
+  complete: noop
 };
 
-var FormInput = reactiveElement(['label', 'value'], function (_ref) {
-  var label = _ref.label,
-      value = _ref.value,
-      inputColor = _ref.inputColor,
-      labelColor = _ref.labelColor,
-      host = _ref.host;
-  useEffect(function () {
-    console.log('<form-input> mounting effect');
-    return function () {
-      return console.log('<form-input> unmounting effect');
-    };
-  });
-  var id = label.toLowerCase();
-  return html(_templateObject$3 || (_templateObject$3 = _taggedTemplateLiteral(["\n      <style>\n        label {\n          color: ", ";\n        }\n\n        input {\n          color: ", ";\n        }\n      </style>\n      <label for=\"", "\">", "</label>\n      <input\n        value=\"", "\"\n        id=\"", "\"\n        @input=\"", "\"\n      />\n    "])), labelColor, inputColor, id, label, value, id, function (event) {
-    return handleInput(event, host);
-  });
+var observable = function () {
+  return typeof Symbol === 'function' && Symbol.observable || '@@observable';
+}();
+
+function identity(x) {
+  return x;
+}
+
+function pipeFromArray(fns) {
+  if (fns.length === 0) {
+    return identity;
+  }
+
+  if (fns.length === 1) {
+    return fns[0];
+  }
+
+  return function piped(input) {
+    return fns.reduce(function (prev, fn) {
+      return fn(prev);
+    }, input);
+  };
+}
+
+var Observable = function () {
+  function Observable(subscribe) {
+    if (subscribe) {
+      this._subscribe = subscribe;
+    }
+  }
+
+  Observable.prototype.lift = function (operator) {
+    var observable = new Observable();
+    observable.source = this;
+    observable.operator = operator;
+    return observable;
+  };
+
+  Observable.prototype.subscribe = function (observerOrNext, error, complete) {
+    var _this = this;
+
+    var subscriber = isSubscriber(observerOrNext) ? observerOrNext : new SafeSubscriber(observerOrNext, error, complete);
+    errorContext(function () {
+      var _a = _this,
+          operator = _a.operator,
+          source = _a.source;
+      subscriber.add(operator ? operator.call(subscriber, source) : source ? _this._subscribe(subscriber) : _this._trySubscribe(subscriber));
+    });
+    return subscriber;
+  };
+
+  Observable.prototype._trySubscribe = function (sink) {
+    try {
+      return this._subscribe(sink);
+    } catch (err) {
+      sink.error(err);
+    }
+  };
+
+  Observable.prototype.forEach = function (next, promiseCtor) {
+    var _this = this;
+
+    promiseCtor = getPromiseCtor(promiseCtor);
+    return new promiseCtor(function (resolve, reject) {
+      var subscriber = new SafeSubscriber({
+        next: function (value) {
+          try {
+            next(value);
+          } catch (err) {
+            reject(err);
+            subscriber.unsubscribe();
+          }
+        },
+        error: reject,
+        complete: resolve
+      });
+
+      _this.subscribe(subscriber);
+    });
+  };
+
+  Observable.prototype._subscribe = function (subscriber) {
+    var _a;
+
+    return (_a = this.source) === null || _a === void 0 ? void 0 : _a.subscribe(subscriber);
+  };
+
+  Observable.prototype[observable] = function () {
+    return this;
+  };
+
+  Observable.prototype.pipe = function () {
+    var operations = [];
+
+    for (var _i = 0; _i < arguments.length; _i++) {
+      operations[_i] = arguments[_i];
+    }
+
+    return pipeFromArray(operations)(this);
+  };
+
+  Observable.prototype.toPromise = function (promiseCtor) {
+    var _this = this;
+
+    promiseCtor = getPromiseCtor(promiseCtor);
+    return new promiseCtor(function (resolve, reject) {
+      var value;
+
+      _this.subscribe(function (x) {
+        return value = x;
+      }, function (err) {
+        return reject(err);
+      }, function () {
+        return resolve(value);
+      });
+    });
+  };
+
+  Observable.create = function (subscribe) {
+    return new Observable(subscribe);
+  };
+
+  return Observable;
+}();
+
+function getPromiseCtor(promiseCtor) {
+  var _a;
+
+  return (_a = promiseCtor !== null && promiseCtor !== void 0 ? promiseCtor : config.Promise) !== null && _a !== void 0 ? _a : Promise;
+}
+
+function isObserver(value) {
+  return value && isFunction(value.next) && isFunction(value.error) && isFunction(value.complete);
+}
+
+function isSubscriber(value) {
+  return value && value instanceof Subscriber || isObserver(value) && isSubscription(value);
+}
+
+var ObjectUnsubscribedError = createErrorClass(function (_super) {
+  return function ObjectUnsubscribedErrorImpl() {
+    _super(this);
+
+    this.name = 'ObjectUnsubscribedError';
+    this.message = 'object unsubscribed';
+  };
 });
-customElements.define('form-input', connect(settingsStore, function (_ref2) {
-  var inputColor = _ref2.inputColor,
-      labelColor = _ref2.labelColor;
-  return {
-    inputColor: inputColor,
-    labelColor: labelColor
-  };
-}, FormInput));
 
-var _templateObject$2;
-var Form = /*#__PURE__*/function (_ReactiveElement) {
-  _inherits(Form, _ReactiveElement);
+var Subject = function (_super) {
+  __extends(Subject, _super);
 
-  var _super = _createSuper(Form);
+  function Subject() {
+    var _this = _super.call(this) || this;
 
-  function Form() {
-    _classCallCheck(this, Form);
-
-    return _super.apply(this, arguments);
+    _this.closed = false;
+    _this.currentObservers = null;
+    _this.observers = [];
+    _this.isStopped = false;
+    _this.hasError = false;
+    _this.thrownError = null;
+    return _this;
   }
 
-  _createClass(Form, [{
-    key: "setOrigin",
-    value: function setOrigin(origin) {
-      this.dispatchEvent(new CustomEvent('store:form', {
-        bubbles: true,
-        detail: {
-          origin: origin,
-          roaster: this.roaster
-        }
-      }));
-    }
-  }, {
-    key: "setRoaster",
-    value: function setRoaster(roaster) {
-      this.dispatchEvent(new CustomEvent('store:form', {
-        bubbles: true,
-        detail: {
-          origin: this.origin,
-          roaster: roaster
-        }
-      }));
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this = this;
-
-      return html(_templateObject$2 || (_templateObject$2 = _taggedTemplateLiteral(["\n      <form>\n        <form-input\n          label=\"Origin\"\n          value=\"", "\"\n          @input=\"", "\"\n        ></form-input>\n        <form-input\n          label=\"Roaster\"\n          value=\"", "\"\n          @input=\"", "\"\n        ></form-input>\n      </form>\n    "])), this.origin, function (event) {
-        return _this.setOrigin(event.detail);
-      }, this.roaster, function (event) {
-        return _this.setRoaster(event.detail);
-      });
-    }
-  }]);
-
-  return Form;
-}(ReactiveElement);
-customElements.define('app-form', connect(formStore, function (_ref) {
-  var origin = _ref.origin,
-      roaster = _ref.roaster;
-  return {
-    origin: origin,
-    roaster: roaster
+  Subject.prototype.lift = function (operator) {
+    var subject = new AnonymousSubject(this, this);
+    subject.operator = operator;
+    return subject;
   };
-}, Form));
 
-var _templateObject$1;
-var Settings = /*#__PURE__*/function (_ReactiveElement) {
-  _inherits(Settings, _ReactiveElement);
+  Subject.prototype._throwIfClosed = function () {
+    if (this.closed) {
+      throw new ObjectUnsubscribedError();
+    }
+  };
 
-  var _super = _createSuper(Settings);
+  Subject.prototype.next = function (value) {
+    var _this = this;
 
-  function Settings() {
-    _classCallCheck(this, Settings);
+    errorContext(function () {
+      var e_1, _a;
 
-    return _super.apply(this, arguments);
+      _this._throwIfClosed();
+
+      if (!_this.isStopped) {
+        if (!_this.currentObservers) {
+          _this.currentObservers = Array.from(_this.observers);
+        }
+
+        try {
+          for (var _b = __values(_this.currentObservers), _c = _b.next(); !_c.done; _c = _b.next()) {
+            var observer = _c.value;
+            observer.next(value);
+          }
+        } catch (e_1_1) {
+          e_1 = {
+            error: e_1_1
+          };
+        } finally {
+          try {
+            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          } finally {
+            if (e_1) throw e_1.error;
+          }
+        }
+      }
+    });
+  };
+
+  Subject.prototype.error = function (err) {
+    var _this = this;
+
+    errorContext(function () {
+      _this._throwIfClosed();
+
+      if (!_this.isStopped) {
+        _this.hasError = _this.isStopped = true;
+        _this.thrownError = err;
+        var observers = _this.observers;
+
+        while (observers.length) {
+          observers.shift().error(err);
+        }
+      }
+    });
+  };
+
+  Subject.prototype.complete = function () {
+    var _this = this;
+
+    errorContext(function () {
+      _this._throwIfClosed();
+
+      if (!_this.isStopped) {
+        _this.isStopped = true;
+        var observers = _this.observers;
+
+        while (observers.length) {
+          observers.shift().complete();
+        }
+      }
+    });
+  };
+
+  Subject.prototype.unsubscribe = function () {
+    this.isStopped = this.closed = true;
+    this.observers = this.currentObservers = null;
+  };
+
+  Object.defineProperty(Subject.prototype, "observed", {
+    get: function () {
+      var _a;
+
+      return ((_a = this.observers) === null || _a === void 0 ? void 0 : _a.length) > 0;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
+  Subject.prototype._trySubscribe = function (subscriber) {
+    this._throwIfClosed();
+
+    return _super.prototype._trySubscribe.call(this, subscriber);
+  };
+
+  Subject.prototype._subscribe = function (subscriber) {
+    this._throwIfClosed();
+
+    this._checkFinalizedStatuses(subscriber);
+
+    return this._innerSubscribe(subscriber);
+  };
+
+  Subject.prototype._innerSubscribe = function (subscriber) {
+    var _this = this;
+
+    var _a = this,
+        hasError = _a.hasError,
+        isStopped = _a.isStopped,
+        observers = _a.observers;
+
+    if (hasError || isStopped) {
+      return EMPTY_SUBSCRIPTION;
+    }
+
+    this.currentObservers = null;
+    observers.push(subscriber);
+    return new Subscription(function () {
+      _this.currentObservers = null;
+      arrRemove(observers, subscriber);
+    });
+  };
+
+  Subject.prototype._checkFinalizedStatuses = function (subscriber) {
+    var _a = this,
+        hasError = _a.hasError,
+        thrownError = _a.thrownError,
+        isStopped = _a.isStopped;
+
+    if (hasError) {
+      subscriber.error(thrownError);
+    } else if (isStopped) {
+      subscriber.complete();
+    }
+  };
+
+  Subject.prototype.asObservable = function () {
+    var observable = new Observable();
+    observable.source = this;
+    return observable;
+  };
+
+  Subject.create = function (destination, source) {
+    return new AnonymousSubject(destination, source);
+  };
+
+  return Subject;
+}(Observable);
+
+var AnonymousSubject = function (_super) {
+  __extends(AnonymousSubject, _super);
+
+  function AnonymousSubject(destination, source) {
+    var _this = _super.call(this) || this;
+
+    _this.destination = destination;
+    _this.source = source;
+    return _this;
   }
 
-  _createClass(Settings, [{
-    key: "setInputColor",
-    value: function setInputColor(color) {
-      this.dispatchEvent(new CustomEvent('store:settings', {
-        bubbles: true,
-        detail: {
-          inputColor: color,
-          labelColor: this.labelColor
-        }
-      }));
-    }
-  }, {
-    key: "setLabelColor",
-    value: function setLabelColor(color) {
-      this.dispatchEvent(new CustomEvent('store:settings', {
-        bubbles: true,
-        detail: {
-          inputColor: this.inputColor,
-          labelColor: color
-        }
-      }));
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this = this;
+  AnonymousSubject.prototype.next = function (value) {
+    var _a, _b;
 
-      return html(_templateObject$1 || (_templateObject$1 = _taggedTemplateLiteral(["\n      <form-input\n        label=\"Label color\"\n        value=\"", "\"\n        @input=\"", "\"\n      ></form-input>\n      <form-input\n        label=\"Input color\"\n        value=\"", "\"\n        @input=\"", "\"\n      ></form-input>\n    "])), this.labelColor, function (event) {
-        return _this.setLabelColor(event.detail);
-      }, this.inputColor, function (event) {
-        return _this.setInputColor(event.detail);
-      });
-    }
-  }]);
-
-  return Settings;
-}(ReactiveElement);
-customElements.define('app-settings', connect(settingsStore, function (_ref) {
-  var inputColor = _ref.inputColor,
-      labelColor = _ref.labelColor;
-  return {
-    inputColor: inputColor,
-    labelColor: labelColor
+    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.next) === null || _b === void 0 ? void 0 : _b.call(_a, value);
   };
-}, Settings));
+
+  AnonymousSubject.prototype.error = function (err) {
+    var _a, _b;
+
+    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.error) === null || _b === void 0 ? void 0 : _b.call(_a, err);
+  };
+
+  AnonymousSubject.prototype.complete = function () {
+    var _a, _b;
+
+    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.complete) === null || _b === void 0 ? void 0 : _b.call(_a);
+  };
+
+  AnonymousSubject.prototype._subscribe = function (subscriber) {
+    var _a, _b;
+
+    return (_b = (_a = this.source) === null || _a === void 0 ? void 0 : _a.subscribe(subscriber)) !== null && _b !== void 0 ? _b : EMPTY_SUBSCRIPTION;
+  };
+
+  return AnonymousSubject;
+}(Subject);
+
+var BehaviorSubject = function (_super) {
+  __extends(BehaviorSubject, _super);
+
+  function BehaviorSubject(_value) {
+    var _this = _super.call(this) || this;
+
+    _this._value = _value;
+    return _this;
+  }
+
+  Object.defineProperty(BehaviorSubject.prototype, "value", {
+    get: function () {
+      return this.getValue();
+    },
+    enumerable: false,
+    configurable: true
+  });
+
+  BehaviorSubject.prototype._subscribe = function (subscriber) {
+    var subscription = _super.prototype._subscribe.call(this, subscriber);
+
+    !subscription.closed && subscriber.next(this._value);
+    return subscription;
+  };
+
+  BehaviorSubject.prototype.getValue = function () {
+    var _a = this,
+        hasError = _a.hasError,
+        thrownError = _a.thrownError,
+        _value = _a._value;
+
+    if (hasError) {
+      throw thrownError;
+    }
+
+    this._throwIfClosed();
+
+    return _value;
+  };
+
+  BehaviorSubject.prototype.next = function (value) {
+    _super.prototype.next.call(this, this._value = value);
+  };
+
+  return BehaviorSubject;
+}(Subject);
+
+var countStore = new BehaviorSubject(0);
 
 var _templateObject;
 var Store = /*#__PURE__*/function (_ReactiveElement) {
@@ -1248,19 +2303,15 @@ var Store = /*#__PURE__*/function (_ReactiveElement) {
     value: function connectedCallback() {
       _get(_getPrototypeOf(Store.prototype), "connectedCallback", this).call(this);
 
-      this.shadowRoot.addEventListener('store:form', function (_ref) {
+      this.shadowRoot.addEventListener('store:count', function (_ref) {
         var detail = _ref.detail;
-        return formStore.next(detail);
-      });
-      this.shadowRoot.addEventListener('store:settings', function (_ref2) {
-        var detail = _ref2.detail;
-        return settingsStore.next(detail);
+        return countStore.next(detail);
       });
     }
   }, {
     key: "render",
     value: function render() {
-      return html(_templateObject || (_templateObject = _taggedTemplateLiteral(["<slot></slot>"])));
+      return $(_templateObject || (_templateObject = _taggedTemplateLiteral(["<slot></slot>"])));
     }
   }]);
 

@@ -1,23 +1,11 @@
 import { html } from 'lit-html';
+import { attribute, customElement, state } from '../utils/decorators.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
-const reactive = ({ get, set }) => {
-  return {
-    get() {
-      return get.call(this);
-    },
-    set(value) {
-      setTimeout(this.update.bind(this), 0);
-      return set.call(this, value);
-    },
-    init(value) {
-      return value;
-    },
-  };
-};
-
+@customElement('app-counter')
 export class Counter extends ReactiveElement {
-  @reactive accessor count = 0;
+  @attribute({ type: Number }) static initialCount = 1;
+  @state() accessor count = this.initialCount;
 
   increment() {
     this.count++;
@@ -40,5 +28,3 @@ export class Counter extends ReactiveElement {
     `;
   }
 }
-
-customElements.define('app-counter', Counter);

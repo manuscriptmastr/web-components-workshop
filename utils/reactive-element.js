@@ -1,21 +1,22 @@
+import { paramCase } from 'change-case';
 import { render } from 'lit-html';
-import { Hooks } from './hooks.js';
-import { reactiveProperty, reflectiveProperty } from './reactive-property.js';
 
 export class ReactiveElement extends HTMLElement {
-  static get observedAttributes() {
-    return this.properties ?? [];
-  }
+  static observedAttributes = [];
+  static properties = {};
 
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.constructor.observedAttributes.forEach((key) =>
-      reflectiveProperty(this, key)
+    Object.entries(this.constructor.properties).forEach(
+      ([key, { type, default: def }]) =>
+        Object.defineProperty(this, key, {
+          get() {
+            return type(this.getAttribute(paramCase(key)) ?? def);
+          },
+        })
     );
   }
-
-  state = {};
 
   update() {
     if (this.isConnected) {
@@ -24,9 +25,6 @@ export class ReactiveElement extends HTMLElement {
   }
 
   connectedCallback() {
-    Object.entries(this.state).forEach(([key, value]) =>
-      reactiveProperty(this.state, key, value, this.update.bind(this))
-    );
     this.update();
   }
 
@@ -38,28 +36,3 @@ export class ReactiveElement extends HTMLElement {
 
   disconnectedCallback() {}
 }
-
-export const reactiveElement = (props, render) =>
-  class extends ReactiveElement {
-    static properties = props;
-
-    render() {
-      return render({ ...this, host: this });
-    }
-
-    update() {
-      Hooks.focusElement(this);
-      super.update();
-      Hooks.unfocusElement(this);
-    }
-
-    connectedCallback() {
-      Hooks.setElement(this);
-      super.connectedCallback();
-    }
-
-    disconnectedCallback() {
-      super.disconnectedCallback();
-      Hooks.removeElement(this);
-    }
-  };
