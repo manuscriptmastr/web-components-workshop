@@ -1,4 +1,4 @@
-# 2.2: A Tree Gets Some Data (The Observable Edition)
+# 2.3: A Tree Gets Some Data (Application: Donut Chart)
 
 ## :point_down: Start Here
 
@@ -9,10 +9,3 @@ serve .
 ```
 
 ## Concepts
-
-- `new BehaviorSubject(initialValue)`
-- `connect(observable, mapStateToProps, component)`
-- Bugfix: `enumerable: true`
-- Refactor: `<app-store></app-store>`
-- `<app-settings></app-settings>`
-- Persistence with `persist(storage, key, observable)`
