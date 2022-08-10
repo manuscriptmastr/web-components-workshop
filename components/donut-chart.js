@@ -6,7 +6,7 @@ export class DonutChart extends ReactiveElement {
   static properties = ['segment-lengths', 'segment-colors'];
 
   get segmentLengths() {
-    return this['segment-lengths'].split(',').map((str) => parseInt(str, 10));
+    return this['segment-lengths'].split(',').map((len) => parseInt(len, 10));
   }
 
   get segmentColors() {
@@ -14,10 +14,10 @@ export class DonutChart extends ReactiveElement {
   }
 
   get segments() {
-    return zip(this.segmentLengths, this.segmentColors).map(
-      ([length, color], i) => ({
-        length,
+    return zip(this.segmentColors, this.segmentLengths).map(
+      ([color, length], i) => ({
         color,
+        length,
         offset: this.segmentLengths.slice(0, i).reduce((a, b) => a + b, 0),
       })
     );
@@ -27,7 +27,6 @@ export class DonutChart extends ReactiveElement {
     return html`
       <style>
         svg {
-          display: block;
           width: 200px;
         }
 
@@ -36,25 +35,26 @@ export class DonutChart extends ReactiveElement {
           stroke-width: 2;
           transition: all ease-in-out 0.1s;
         }
+
         circle:hover {
           stroke-width: 3;
         }
       </style>
       ${svg`
 			<svg viewBox="0 0 36 36">
-        ${this.segments.map(
-          ({ length, color, offset }) => svg`
-				  <circle
-          r="15.91549430918954"
-          cx="18"
-          cy="18"
-          stroke="${color}"
-          stroke-dasharray="${length} 999"
-          stroke-dashoffset="${offset * -1}"
-        ></circle>
+			  ${this.segments.map(
+          ({ color, length, offset }) => svg`
+						<circle
+							cx="18"
+							cy="18"
+							r="15.9154943092"
+							stroke="${color}"
+							stroke-dasharray="${length} 999"
+							stroke-dashoffset="${offset * -1}"
+						></color>
 				`
         )}
-      </svg>
+			</svg>
 			`}
     `;
   }
