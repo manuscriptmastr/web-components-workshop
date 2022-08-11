@@ -1090,14 +1090,6 @@ function _classApplyDescriptorSet(receiver, descriptor, value) {
   }
 }
 
-function _classPrivateMethodGet(receiver, privateSet, fn) {
-  if (!privateSet.has(receiver)) {
-    throw new TypeError("attempted to get private field on non-instance");
-  }
-
-  return fn;
-}
-
 function _checkPrivateRedeclaration(obj, privateCollection) {
   if (privateCollection.has(obj)) {
     throw new TypeError("Cannot initialize the same private elements twice on an object");
@@ -1108,12 +1100,6 @@ function _classPrivateFieldInitSpec(obj, privateMap, value) {
   _checkPrivateRedeclaration(obj, privateMap);
 
   privateMap.set(obj, value);
-}
-
-function _classPrivateMethodInitSpec(obj, privateSet) {
-  _checkPrivateRedeclaration(obj, privateSet);
-
-  privateSet.add(obj);
 }
 
 function _identity(x) {
@@ -2791,34 +2777,24 @@ var _Symbol$asyncIterator;
 
 var _value = /*#__PURE__*/new WeakMap();
 
-var _resolve = /*#__PURE__*/new WeakMap();
-
-var _next = /*#__PURE__*/new WeakSet();
+var _consumers = /*#__PURE__*/new WeakMap();
 
 _Symbol$asyncIterator = Symbol.asyncIterator;
 var Store = /*#__PURE__*/function () {
   function Store(initialValue) {
-    var _this2 = this;
-
     _classCallCheck(this, Store);
-
-    _classPrivateMethodInitSpec(this, _next);
 
     _classPrivateFieldInitSpec(this, _value, {
       writable: true,
       value: void 0
     });
 
-    _classPrivateFieldInitSpec(this, _resolve, {
+    _classPrivateFieldInitSpec(this, _consumers, {
       writable: true,
-      value: void 0
+      value: new Set()
     });
 
     _classPrivateFieldSet(this, _value, initialValue);
-
-    _classPrivateFieldSet(this, _resolve, function () {
-      return Promise.resolve(_classPrivateFieldGet(_this2, _value));
-    });
   }
 
   _createClass(Store, [{
@@ -2829,7 +2805,15 @@ var Store = /*#__PURE__*/function () {
   }, {
     key: "next",
     value: function next(value) {
-      _classPrivateFieldGet(this, _resolve).call(this, value);
+      var _this2 = this;
+
+      _classPrivateFieldSet(this, _value, value);
+
+      _classPrivateFieldGet(this, _consumers).forEach(function (next) {
+        next(_classPrivateFieldGet(_this2, _value));
+      });
+
+      _classPrivateFieldGet(this, _consumers).clear();
     }
   }, {
     key: _Symbol$asyncIterator,
@@ -2847,11 +2831,13 @@ var Store = /*#__PURE__*/function () {
               case 2:
 
                 _context.next = 5;
-                return _awaitAsyncGenerator(_classPrivateMethodGet(_this, _next, _next2).call(_this));
+                return _awaitAsyncGenerator(new Promise(function (res) {
+                  _classPrivateFieldGet(_this, _consumers).add(res);
+                }));
 
               case 5:
                 _context.next = 7;
-                return _classPrivateFieldGet(_this, _value);
+                return _context.sent;
 
               case 7:
                 _context.next = 2;
@@ -2869,19 +2855,4 @@ var Store = /*#__PURE__*/function () {
 
   return Store;
 }();
-
-function _next2() {
-  var _this3 = this;
-
-  return new Promise(function (res) {
-    var resolve = function resolve(value) {
-      _classPrivateFieldSet(_this3, _value, value);
-
-      res(value);
-    };
-
-    _classPrivateFieldSet(_this3, _resolve, resolve);
-  });
-}
-
 window.Store = Store;

@@ -1,10 +1,9 @@
 export class Store {
   #value;
-  #resolve;
+  #consumers = new Set();
 
   constructor(initialValue) {
     this.#value = initialValue;
-    this.#resolve = () => Promise.resolve(this.#value);
   }
 
   get value() {
@@ -12,24 +11,19 @@ export class Store {
   }
 
   next(value) {
-    this.#resolve(value);
-  }
-
-  #next() {
-    return new Promise((res) => {
-      const resolve = (value) => {
-        this.#value = value;
-        res(value);
-      };
-      this.#resolve = resolve;
+    this.#value = value;
+    this.#consumers.forEach((next) => {
+      next(this.#value);
     });
+    this.#consumers.clear();
   }
 
   async *[Symbol.asyncIterator]() {
     yield this.#value;
     while (true) {
-      await this.#next();
-      yield this.#value;
+      yield await new Promise((res) => {
+        this.#consumers.add(res);
+      });
     }
   }
 }
