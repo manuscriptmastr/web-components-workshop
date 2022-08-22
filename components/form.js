@@ -1,6 +1,6 @@
 import { html } from 'lit-html';
-import { formStore } from '../store/observable.js';
-import { connect } from '../utils/observable.js';
+import { store } from '../store/generator.js';
+import { connect } from '../utils/generator.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
 export class Form extends ReactiveElement {
@@ -42,5 +42,5 @@ export class Form extends ReactiveElement {
 
 customElements.define(
   'app-form',
-  connect(formStore, ({ origin, roaster }) => ({ origin, roaster }), Form)
+  connect(store, ({ origin, roaster }) => ({ origin, roaster }), Form)
 );
