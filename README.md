@@ -1,4 +1,4 @@
-# 2.4: A Tree Gets Some Data (The Async Generator Edition)
+# 2.5: A Tree Gets Some Data (The Decorators Edition)
 
 ## :point_down: Start Here
 
@@ -9,8 +9,3 @@ serve .
 ```
 
 ## Concepts
-
-- Generators
-- `Symbol.asyncIterator`
-- Multiple subscribers with `new Set()`
-- `connect(generator, mapStateToProps, component)`

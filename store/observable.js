@@ -1,4 +1,4 @@
-import { BehaviorSubject } from 'https://unpkg.com/rxjs@7.5.5/dist/esm/internal/BehaviorSubject.js';
+import { BehaviorSubject } from 'rxjs';
 import { persist } from '../utils/persistence.js';
 
 export const formStore = persist(

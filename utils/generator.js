@@ -12,7 +12,9 @@ export class Store {
     return this.#value;
   }
 
-  next(value) {
+  next(valueOrFn) {
+    const value =
+      typeof valueOrFn === 'function' ? valueOrFn(this.#value) : valueOrFn;
     this.#value = value;
     this.#consumers.forEach((next) => next(this.#value));
     this.#consumers.clear();

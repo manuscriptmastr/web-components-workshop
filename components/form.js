@@ -1,25 +1,25 @@
 import { html } from 'lit-html';
 import { store } from '../store/generator.js';
-import { connect } from '../utils/generator.js';
+import { customElement, generator } from '../utils/decorators.js';
 import { ReactiveElement } from '../utils/reactive-element.js';
 
+@customElement('app-form')
+@generator('formStore', store)
 export class Form extends ReactiveElement {
-  setOrigin(origin) {
-    this.dispatchEvent(
-      new CustomEvent('store:form', {
-        bubbles: true,
-        detail: { origin, roaster: this.roaster },
-      })
-    );
+  get origin() {
+    return this.formStore.value.origin;
   }
 
-  setRoaster(roaster) {
-    this.dispatchEvent(
-      new CustomEvent('store:form', {
-        bubbles: true,
-        detail: { origin: this.origin, roaster },
-      })
-    );
+  set origin(origin) {
+    store.next((state) => ({ ...state, origin }));
+  }
+
+  get roaster() {
+    return this.formStore.value.roaster;
+  }
+
+  set roaster(roaster) {
+    store.next((state) => ({ ...state, roaster }));
   }
 
   render() {
@@ -28,19 +28,14 @@ export class Form extends ReactiveElement {
         <form-input
           label="Origin"
           value="${this.origin}"
-          @input="${(event) => this.setOrigin(event.detail)}"
+          @input="${(event) => (this.origin = event.detail)}"
         ></form-input>
         <form-input
           label="Roaster"
           value="${this.roaster}"
-          @input="${(event) => this.setRoaster(event.detail)}"
+          @input="${(event) => (this.roaster = event.detail)}"
         ></form-input>
       </form>
     `;
   }
 }
-
-customElements.define(
-  'app-form',
-  connect(store, ({ origin, roaster }) => ({ origin, roaster }), Form)
-);

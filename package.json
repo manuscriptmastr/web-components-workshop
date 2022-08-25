@@ -1,0 +1,35 @@
+{
+  "name": "web-components-workshop",
+  "version": "1.0.0",
+  "description": "## :point_down: Start Here",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve & rollup --config --watch",
+    "build": "rollup --config",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manuscriptmastr/web-components-workshop.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/manuscriptmastr/web-components-workshop/issues"
+  },
+  "homepage": "https://github.com/manuscriptmastr/web-components-workshop#readme",
+  "dependencies": {
+    "lit-html": "^2.3.1",
+    "ramda": "^0.28.0",
+    "rxjs": "^7.5.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.13",
+    "@babel/plugin-proposal-decorators": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "rollup": "^2.78.1",
+    "serve": "^14.0.1"
+  }
+}
