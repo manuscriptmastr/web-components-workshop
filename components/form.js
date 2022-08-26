@@ -11,7 +11,7 @@ export class Form extends ReactiveElement {
   }
 
   set origin(origin) {
-    store.next((state) => ({ ...state, origin }));
+    this.formStore.next((state) => ({ ...state, origin }));
   }
 
   get roaster() {
@@ -19,7 +19,7 @@ export class Form extends ReactiveElement {
   }
 
   set roaster(roaster) {
-    store.next((state) => ({ ...state, roaster }));
+    this.formStore.next((state) => ({ ...state, roaster }));
   }
 
   render() {
